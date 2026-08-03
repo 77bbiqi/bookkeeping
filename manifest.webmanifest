@@ -1,0 +1,14 @@
+{
+  "name": "77 记账喽",
+  "short_name": "77记账",
+  "description": "仅供77宝使用的小账本",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ff8fb8",
+  "theme_color": "#c084fc",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

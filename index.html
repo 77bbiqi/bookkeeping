@@ -700,34 +700,8 @@ const load = () => {
     bills = JSON.parse(localStorage.getItem('bk_bills')) || [];
     settings = Object.assign({theme:1, mode:'light'}, JSON.parse(localStorage.getItem('bk_settings')));
   }catch(e){ bills=[]; settings={theme:1, mode:'light'}; }
-  if(!bills.length) seed();
 };
 const save = () => { localStorage.setItem('bk_bills', JSON.stringify(bills)); };
-
-/* ============ 示例数据 ============ */
-function seed(){
-  const n = new Date();
-  const at = (days, h, m) => { const d=new Date(n.getFullYear(),n.getMonth(),n.getDate()-days,h,m); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+' '+String(h).padStart(2,'0')+':'+String(m).padStart(2,'0'); };
-  const S = [];
-  const push=(type,amount,category,note,platform,days,h,m)=>{ S.push({id:uid(),type,amount,category,note,platform,time:at(days,h,m)}); };
-  push('expense',42,'餐饮','和77吃火锅','美团',0,19,30);
-  push('expense',186,'购物','京东买的卫衣','京东',0,15,10);
-  push('income',8600,'其他','7月工资','其他',0,10,0);
-  push('expense',18,'餐饮','楼下咖啡','线下',0,9,20);
-  push('expense',329,'购物','淘宝的口红','淘宝',1,20,5);
-  push('expense',12.5,'交通','地铁通勤','支付宝',1,8,40);
-  push('transfer',500,'转账','转给77','微信',1,21,0);
-  push('expense',89,'娱乐','和77看电影','美团',2,19,0);
-  push('expense',256,'购物','给77的惊喜','京东',2,14,30);
-  push('expense',66,'餐饮','拼多多零食','拼多多',2,12,0);
-  push('expense',23,'交通','打车回家','滴滴',3,22,10);
-  push('expense',520,'购物','77生日礼物','淘宝',3,11,0);
-  push('expense',45,'餐饮','外卖晚餐','饿了么',4,18,30);
-  push('income',300,'其他','卖闲置','闲鱼',5,13,0);
-  push('expense',150,'娱乐','周末公园门票','美团',6,10,0);
-  S.forEach(b=>b.platform = b.platform||'其他');
-  bills = S; save();
-}
 
 /* ============ 工具：平台识别 ============ */
 function detectPlatform(text){

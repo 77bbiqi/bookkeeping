@@ -829,8 +829,33 @@ let statAcc = 'all';              // 统计筛选：账号（all=全部）
 let statDrawerKind = '';          // chan / acc
 const filter = {t:'all', cat:'', start:'', end:'', keyword:'', acc:'', chan:''};
 
-/* 渠道/直播间的图标（统一购物车，后续可细化） */
-function chanIcon(c){ return '🛒'; }
+/* 渠道/直播间的图标：根据名称内容智能匹配卡通图标 */
+function chanIcon(name){
+  if(!name) return '🛒';
+  const rules = [
+    [/京东/, '🛒'], [/淘宝|天猫/, '🛍️'], [/拼多多/, '🛒'], [/美团/, '🍔'],
+    [/抖音|快手|火山/, '🎵'], [/微信/, '💬'], [/支付宝/, '💳'], [/快手/, '🎬'],
+    [/美妆|护肤|化妆品|彩妆|口红|面膜|香水/, '💄'],
+    [/女装|服饰|衣服|穿搭|服装|裙/, '👗'], [/男装/, '👔'],
+    [/鞋|靴/, '👟'], [/包|箱包/, '👜'],
+    [/珠宝|首饰|黄金|玉石|金店/, '💎'],
+    [/手机|数码|电脑|3C|电子|配件/, '📱'],
+    [/家电|电器|电视/, '📺'],
+    [/零食|食品|美食|坚果|饼干|饮料|馋/, '🍿'],
+    [/水果|生鲜/, '🍎'], [/酒/, '🍷'], [/茶/, '🍵'],
+    [/母婴|宝宝|儿童|童装|奶粉/, '👶'],
+    [/家居|家具|日用|生活|收纳|家纺/, '🏠'],
+    [/运动|健身|瑜伽|跑步/, '🏃'], [/户外|露营|钓鱼/, '🏕️'],
+    [/图书|书|文具/, '📚'], [/宠物/, '🐱'], [/鲜花/, '💐'],
+    [/百货|超市|综合|严选|甄选/, '🛒'],
+    [/药|健康|滋补|养生/, '💊'],
+    [/直播/, '📺']
+  ];
+  for(const [re, ico] of rules){
+    if(re.test(name)) return ico;
+  }
+  return '🛒';
+}
 function chanColor(name){
   if(PLATFORMS[name]) return PLATFORMS[name];
   const i = channels.indexOf(name);
@@ -1244,7 +1269,7 @@ function renderFilterOpts(){ /* 账号 & 渠道筛选 chips */
     el.classList.add('on'); filter.acc=el.dataset.fa; renderLedger();
   });
   $('fChans').innerHTML = '<button class="chip on" data-fc2="">全部渠道</button>' +
-    channels.map(c=>`<button class="chip" data-fc2="${c}">📺 ${c}</button>`).join('');
+    channels.map(c=>`<button class="chip" data-fc2="${c}">${chanIcon(c)} ${c}</button>`).join('');
   document.querySelectorAll('[data-fc2]').forEach(el=>el.onclick=()=>{
     document.querySelectorAll('[data-fc2]').forEach(x=>x.classList.remove('on'));
     el.classList.add('on'); filter.chan=el.dataset.fc2; renderLedger();
@@ -1345,7 +1370,7 @@ function openStatDrawer(kind){
   const isChan = kind==='chan';
   $('statDrawerTitle').textContent = isChan ? '选择渠道 / 直播间' : '选择账号';
   const items = isChan
-    ? [{v:'all', t:'📺 全部渠道'}, ...channels.map(c=>({v:c, t:'📺 '+c}))]
+    ? [{v:'all', t:'📺 全部渠道'}, ...channels.map(c=>({v:c, t:chanIcon(c)+' '+c}))]
     : [{v:'all', t:'👤 全部账号'}, ...accounts.map(a=>({v:a, t:'👤 '+a}))];
   const cur = isChan ? statChan : statAcc;
   $('statDrawerList').innerHTML = items.map(it=>`

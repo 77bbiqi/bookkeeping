@@ -1344,6 +1344,8 @@ function renderStats(){
   $('stOut').textContent='-'+fmtMoney(out);
   $('stBalance').textContent=fmtMoney(inc-out);
   renderCalendar();
+  /* 切换渠道/账号或进入统计时，自动更新当天账单（不需要再点日期） */
+  showDayBills(selDay || iso(new Date()), true);
 }
 function renderStatPicks(){
   $('chanPick').textContent = '📺 渠道 · ' + (statChan==='all' ? '全部' : statChan);
@@ -1407,13 +1409,13 @@ function renderCalendar(){
   if(t) t.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
   $('calHint').textContent = `${y}年${m+1}月`;
 }
-function showDayBills(day){
+function showDayBills(day, noScroll){
   const list = applyStatFilter(bills).filter(b=>b.time.slice(0,10)===day).sort((a,b)=>b.time.localeCompare(a.time));
   $('dayBillsWrap').style.display='block';
   $('dayBillsTitle').textContent = `${dayLabel(day)} · 共 ${list.length} 条`;
   $('dayBills').innerHTML = list.length ? list.map(billHTML).join('') : '<div class="empty" style="padding:16px">当天没有账单</div>';
   $('dayBills').querySelectorAll('[data-id]').forEach(el=>el.addEventListener('click',()=>{ if(!batchMode()) openModal(el.dataset.id); }));
-  $('dayBillsWrap').scrollIntoView({behavior:'smooth', block:'nearest'});
+  if(!noScroll) $('dayBillsWrap').scrollIntoView({behavior:'smooth', block:'nearest'});
 }
 
 /* ============ 欢迎惊喜 ============ */

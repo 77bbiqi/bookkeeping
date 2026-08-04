@@ -891,6 +891,13 @@ const load = () => {
       const aa = accounts.filter(a=>a!=='默认');
       if(aa.length!==accounts.length){ accounts = aa; saveAccs(); }
     }
+    /* 一次性迁移：旧账单时间从「日期+时分」整理为纯日期（2026-08-04T20:57 → 2026-08-04），其他字段不动 */
+    if(!localStorage.getItem('bk_migrated_time_v1')){
+      localStorage.setItem('bk_migrated_time_v1','1');
+      let changed = false;
+      bills.forEach(b=>{ if(typeof b.time==='string' && b.time.includes('T')){ b.time = b.time.slice(0,10); changed = true; } });
+      if(changed) save();
+    }
     /* 旧数据兼容：没有账号的旧账单账号留空（不再注入默认） */
     bills.forEach(b=>{ if(b.account===undefined) b.account=''; });
   }catch(e){ bills=[]; settings={theme:1, mode:'light'}; channels=[]; accounts=[]; }

@@ -883,6 +883,14 @@ const load = () => {
     settings = Object.assign({theme:1, mode:'light'}, JSON.parse(localStorage.getItem('bk_settings')));
     channels = JSON.parse(localStorage.getItem('bk_channels')) || [];
     accounts = JSON.parse(localStorage.getItem('bk_accounts')) || [];
+    /* 一次性迁移：清除旧版本遗留的默认 京东/淘宝 渠道 和 默认 账号（用户明确要求删除，只清理一次） */
+    if(!localStorage.getItem('bk_migrated_v2')){
+      localStorage.setItem('bk_migrated_v2','1');
+      const cc = channels.filter(c=>c!=='京东' && c!=='淘宝');
+      if(cc.length!==channels.length){ channels = cc; saveChans(); }
+      const aa = accounts.filter(a=>a!=='默认');
+      if(aa.length!==accounts.length){ accounts = aa; saveAccs(); }
+    }
     /* 旧数据兼容：没有账号的旧账单账号留空（不再注入默认） */
     bills.forEach(b=>{ if(b.account===undefined) b.account=''; });
   }catch(e){ bills=[]; settings={theme:1, mode:'light'}; channels=[]; accounts=[]; }
@@ -930,6 +938,8 @@ function applyTheme(){
 }
 function saveSettings(){ localStorage.setItem('bk_settings', JSON.stringify(settings)); }
 document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{ settings.mode=b.dataset.mode; saveSettings(); applyTheme(); renderThemes(); });
+/* 设置页深色模式开关 */
+$('darkSwitch').onclick=()=>{ settings.mode = settings.mode==='dark' ? 'light' : 'dark'; saveSettings(); applyTheme(); renderThemes(); };
 
 /* ============ 导航 ============ */
 document.querySelectorAll('[data-nav]').forEach(el=>el.onclick=()=>switchPage(el.dataset.nav));

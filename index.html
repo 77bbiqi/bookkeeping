@@ -416,6 +416,12 @@ body{letter-spacing:.2px}
   background:var(--surface-2); color:var(--muted); border:1px dashed var(--line);
 }
 .add-btn:active{background:var(--surface)}
+.add-entry-btn{
+  width:100%; padding:12px; border-radius:14px; margin-bottom:10px;
+  background:var(--surface); box-shadow:var(--shadow);
+  font-size:14px; font-weight:700; color:var(--text);
+}
+.add-entry-btn:active{background:var(--surface-2)}
 .sel-badge{
   display:flex; align-items:center; justify-content:space-between; gap:10px;
   background:var(--surface-2); border-radius:14px; padding:10px 14px; margin-bottom:12px; font-weight:800;
@@ -524,6 +530,8 @@ body{letter-spacing:.2px}
           <div class="col"><div class="v out" id="ovExpense">-¥0.00</div><div class="label">总支出</div></div>
         </div>
       </div>
+
+      <button class="add-entry-btn" onclick="showAddMenu()">➕ 添加直播间 / 账号</button>
 
       <div class="search-row">
         <div class="search-box">
@@ -732,6 +740,16 @@ body{letter-spacing:.2px}
       <button class="btn-cancel" onclick="closeAddDialog()">取消</button>
       <button class="btn-confirm" id="addOkBtn" onclick="confirmAdd()">添加</button>
     </div>
+  </div>
+</div>
+
+<!-- ======= 账单首页：添加直播间/账号 菜单 ======= -->
+<div class="mask" id="addMenuMask">
+  <div class="actionsheet">
+    <div class="st-title" style="padding:10px 14px; font-size:14px; color:var(--muted)">添加什么？</div>
+    <button class="act-btn" onclick="addMenuPick('channel')">📺 添加直播间 / 渠道</button>
+    <button class="act-btn" onclick="addMenuPick('account')">👤 添加账号</button>
+    <button class="act-cancel" onclick="closeAddMenu()">取消</button>
   </div>
 </div>
 
@@ -1123,6 +1141,11 @@ function renderTypeTabs(){
     t.classList.toggle(t.dataset.t, on);
   });
 }
+/* 账单首页：添加直播间/账号 菜单 */
+function showAddMenu(){ $('addMenuMask').classList.add('show'); }
+function closeAddMenu(){ $('addMenuMask').classList.remove('show'); }
+function addMenuPick(kind){ closeAddMenu(); showAddDialog(kind); }
+
 /* 添加渠道 / 账号 输入弹窗 */
 function showAddDialog(kind){
   addKind=kind;
@@ -1147,12 +1170,12 @@ function confirmAdd(){
   if(addKind==='channel'){
     if(channels.includes(name)){ toast('这个渠道已经有了'); return; }
     channels.push(name); saveChans(); renderChanGrid(); renderFilterOpts(); renderStatPicks();
-    draft.platform = name; showFormStep();
+    if(draft){ draft.platform = name; showFormStep(); }
     toast('已添加渠道「'+name+'」');
   }else{
     if(accounts.includes(name)){ toast('这个账号已经有了'); return; }
-    accounts.push(name); saveAccs(); renderAccRow(); renderFilterOpts(); renderStatPicks();
-    draft.syncTo = accounts.filter(x=>x!==draft.account); renderSyncRow();
+    accounts.push(name); saveAccs(); renderFilterOpts(); renderStatPicks();
+    if(draft){ renderAccRow(); renderSyncRow(); draft.syncTo = accounts.filter(x=>x!==draft.account); }
     toast('已添加账号「'+name+'」');
   }
   closeAddDialog();

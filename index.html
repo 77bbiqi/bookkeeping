@@ -449,13 +449,15 @@ body{letter-spacing:.2px}
 .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:4px}
 .cal-wd{text-align:center; font-size:11px; color:var(--muted); font-weight:600; padding:4px 0}
 .cal-day{
-  border-radius:12px; padding:5px 2px 4px; text-align:center; min-height:52px;
-  background:var(--surface-2); cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:2px;
+  border-radius:10px; padding:6px 2px; text-align:center; min-height:40px;
+  background:var(--surface-2); cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:3px;
 }
 .cal-day:active{transform:scale(.95)}
-.cal-day .n{font-size:12px; font-weight:800; color:var(--text)}
-.cal-day .vin{font-size:9.5px; color:var(--ok); font-weight:700; white-space:nowrap}
-.cal-day .vout{font-size:9.5px; color:var(--danger); font-weight:700; white-space:nowrap}
+.cal-day .n{font-size:13px; font-weight:800; color:var(--text); line-height:1}
+.cal-day .cdots{display:flex; gap:3px; height:6px; align-items:center; justify-content:center}
+.cal-day .cdots i{width:6px; height:6px; border-radius:50%}
+.cal-day .cdots .dot-in{background:var(--ok)}
+.cal-day .cdots .dot-out{background:var(--danger)}
 .cal-day.today{border:1.5px solid #8b5cf6}
 .cal-day.blank{background:transparent; cursor:default}
 .cal-day.sel{background:rgba(167,139,250,.3)}
@@ -1385,29 +1387,24 @@ function renderChanStats(list){
     </tr>`).join('')}
   </table>`;
 }
-function shortMoney(n){
-  if(n>=10000) return (n/10000).toFixed(1)+'w';
-  if(n>=1000) return (n/1000).toFixed(1)+'k';
-  return String(Math.round(n));
-}
 function renderCalendar(){
   const now = new Date();
   const y = now.getFullYear(), m = now.getMonth();
   const daysInMonth = new Date(y, m+1, 0).getDate();
-  const firstWd = new Date(y, m, 1).getDay();
+  /* 周一为一周开头 */
+  const firstOffset = (new Date(y, m, 1).getDay() + 6) % 7; // 0 = 周一
   const todayIso = iso(now);
   const filtered = applyStatFilter(bills);
-  const cells = ['日','一','二','三','四','五','六'].map(w=>`<div class="cal-wd">${w}</div>`);
-  for(let i=0;i<firstWd;i++) cells.push('<div class="cal-day blank"></div>');
+  const cells = ['一','二','三','四','五','六','日'].map(w=>`<div class="cal-wd">${w}</div>`);
+  for(let i=0;i<firstOffset;i++) cells.push('<div class="cal-day blank"></div>');
   for(let d=1; d<=daysInMonth; d++){
     const k = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const dayB = filtered.filter(b=>b.time.slice(0,10)===k);
-    const inc = dayB.filter(b=>b.type==='income').reduce((s,b)=>s+b.amount,0);
-    const out = dayB.filter(b=>b.type==='expense').reduce((s,b)=>s+b.amount,0);
+    const hasIn = dayB.some(b=>b.type==='income');
+    const hasOut = dayB.some(b=>b.type==='expense');
     cells.push(`<div class="cal-day ${k===todayIso?'today':''} ${k===selDay?'sel':''}" data-d="${k}">
       <span class="n">${d}</span>
-      ${inc?`<span class="vin">+${shortMoney(inc)}</span>`:''}
-      ${out?`<span class="vout">-${shortMoney(out)}</span>`:''}
+      ${(hasIn||hasOut)?`<span class="cdots">${hasIn?'<i class="dot-in"></i>':''}${hasOut?'<i class="dot-out"></i>':''}</span>`:''}
     </div>`);
   }
   $('calGrid').innerHTML = cells.join('');

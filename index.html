@@ -450,6 +450,7 @@ body{letter-spacing:.2px}
 .drawer-item:active{background:var(--surface-2)}
 .drawer-item .di-check{margin-left:auto; color:#8b5cf6; font-weight:900}
 .drawer-item.cur{background:rgba(167,139,250,.18)}
+.th-swatch{width:42px; height:26px; border-radius:8px; flex-shrink:0; border:1px solid rgba(128,128,128,.25)}
 /* 日历 */
 /* 横向日期条日历 */
 .cal-hstrip{display:flex; align-items:center; gap:6px}
@@ -625,9 +626,10 @@ body{letter-spacing:.2px}
 
     <!-- ======= 设置页 ======= -->
     <section id="page-settings" class="page">
-      <div class="card" style="padding:16px">
-        <h3 style="margin-bottom:12px">背景渐变（点选切换）</h3>
-        <div class="set-themes" id="setThemes"></div>
+      <div class="set-item">
+        <div class="ic">🎨</div>
+        <div class="txt"><div class="t">背景主题</div><div class="d">点选切换背景渐变</div></div>
+        <button class="set-btn" onclick="openThemeDrawer()">选择</button>
       </div>
       <div class="set-item">
         <div class="ic">🌙</div>
@@ -754,6 +756,15 @@ body{letter-spacing:.2px}
     <div class="st-title" id="statDrawerTitle" style="padding:10px 14px; font-size:14px; color:var(--muted)"></div>
     <div id="statDrawerList"></div>
     <button class="act-cancel" onclick="closeStatDrawer()">取消</button>
+  </div>
+</div>
+
+<!-- ======= 设置：背景主题 抽屉选择 ======= -->
+<div class="mask" id="themeDrawer">
+  <div class="actionsheet">
+    <div class="st-title" style="padding:10px 14px; font-size:14px; color:var(--muted)">选择背景主题</div>
+    <div id="themeDrawerList"></div>
+    <button class="act-cancel" onclick="closeThemeDrawer()">取消</button>
   </div>
 </div>
 
@@ -897,9 +908,21 @@ function renderThemes(){
       ${isSw?`<span>${t.name}</span>`:''}
     </div>`).join('');
   $('sideThemes').innerHTML = html(null, false);
-  $('setThemes').innerHTML = html(null, true);
+  if($('setThemes')) $('setThemes').innerHTML = html(null, true);
   document.querySelectorAll('[data-th]').forEach(el=>el.onclick=()=>{ settings.theme=+el.dataset.th; saveSettings(); applyTheme(); renderThemes(); });
 }
+/* 设置页：背景主题抽屉 */
+function openThemeDrawer(){
+  $('themeDrawerList').innerHTML = THEMES.map((t,i)=>`
+    <button class="drawer-item ${settings.theme===i?'cur':''}" data-th2="${i}">
+      <span class="th-swatch" style="background:${t.css}"></span>${t.name}${settings.theme===i?'<span class="di-check">✓</span>':''}
+    </button>`).join('');
+  document.querySelectorAll('[data-th2]').forEach(el=>el.onclick=()=>{
+    settings.theme=+el.dataset.th2; saveSettings(); applyTheme(); renderThemes(); closeThemeDrawer();
+  });
+  $('themeDrawer').classList.add('show');
+}
+function closeThemeDrawer(){ $('themeDrawer').classList.remove('show'); }
 function applyTheme(){
   document.documentElement.dataset.theme = settings.mode;
   document.body.style.setProperty('--bg', THEMES[settings.theme].css);

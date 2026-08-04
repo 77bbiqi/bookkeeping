@@ -310,6 +310,11 @@ input,select{font-family:inherit; color:inherit}
 /* ============ 确认弹窗（居中） ============ */
 .confirm-mask{align-items:center}
 .confirm-modal{width:calc(100% - 48px); max-width:320px; background:var(--surface); border-radius:18px; padding:22px; animation:pop .25s ease both}
+.snap-item{padding:12px 14px; border-radius:12px; background:var(--surface-2); margin-bottom:8px; cursor:pointer; transition:transform .15s}
+.snap-item:active{transform:scale(.98)}
+.snap-item b{font-size:14px; color:var(--text)}
+#snapMask .confirm-modal{max-width:380px; max-height:72vh; display:flex; flex-direction:column}
+#snapList{overflow:auto; flex:1; min-height:120px; margin:12px 0 4px}
 .confirm-modal .t{font-size:16px; font-weight:800; text-align:center; margin-bottom:6px}
 .confirm-modal .d{font-size:13px; color:var(--muted); text-align:center; margin-bottom:18px; line-height:1.6}
 
@@ -647,8 +652,13 @@ body{letter-spacing:.2px}
         <input type="file" id="importFile" accept=".json" style="display:none">
       </div>
       <div class="set-item">
+        <div class="ic">💾</div>
+        <div class="txt"><div class="t">备份快照</div><div class="d">自动存最近 20 次记录，可回滚</div></div>
+        <button class="set-btn" onclick="showSnapshots()">恢复</button>
+      </div>
+      <div class="set-item">
         <div class="ic">🧹</div>
-        <div class="txt"><div class="t">清空数据</div><div class="d">删除全部账单，不可恢复</div></div>
+        <div class="txt"><div class="t">清空数据</div><div class="d">删除全部账单（可用备份快照恢复）</div></div>
         <button class="set-btn danger" onclick="askClearAll()">清空</button>
       </div>
       <div class="set-item">
@@ -779,6 +789,18 @@ body{letter-spacing:.2px}
   </div>
 </div>
 
+<!-- ======= 备份快照列表 ======= -->
+<div class="mask confirm-mask" id="snapMask">
+  <div class="confirm-modal">
+    <div class="t">💾 备份快照</div>
+    <div class="d">每笔记账后自动留底一份，点击某条可回滚到那个时刻</div>
+    <div id="snapList"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeSnapshots()">关闭</button>
+    </div>
+  </div>
+</div>
+
 <!-- ======= 长按操作面板 ======= -->
 <div class="mask" id="actionMask">
   <div class="actionsheet">
@@ -902,9 +924,42 @@ const load = () => {
     bills.forEach(b=>{ if(b.account===undefined) b.account=''; });
   }catch(e){ bills=[]; settings={theme:1, mode:'light'}; channels=[]; accounts=[]; }
 };
-const save = () => { localStorage.setItem('bk_bills', JSON.stringify(bills)); };
+const save = () => { localStorage.setItem('bk_bills', JSON.stringify(bills)); backupNow(); };
 const saveChans = () => { localStorage.setItem('bk_channels', JSON.stringify(channels)); };
 const saveAccs  = () => { localStorage.setItem('bk_accounts', JSON.stringify(accounts)); };
+/* ============ 自动备份：IndexedDB 快照（每笔保存后自动留底，最多 20 份） ============ */
+const BK_DB='bk_snap_db', BK_STORE='snaps', BK_MAX=20;
+function _idb(mode, fn){
+  return new Promise((resolve,reject)=>{
+    const rq=indexedDB.open(BK_DB,1);
+    rq.onupgradeneeded=()=>{ if(!rq.result.objectStoreNames.contains(BK_STORE)) rq.result.createObjectStore(BK_STORE,{keyPath:'t'}); };
+    rq.onsuccess=()=>{
+      const db=rq.result, tx=db.transaction(BK_STORE,mode), store=tx.objectStore(BK_STORE);
+      const out=fn(store);
+      tx.oncomplete=()=>{ db.close(); resolve(out&&out.result); };
+      tx.onerror=()=>{ db.close(); reject(tx.error); };
+    };
+    rq.onerror=()=>reject(rq.error);
+  });
+}
+function backupNow(){
+  try{
+    const t=new Date().toISOString();
+    _idb('readwrite',s=>s.put({t, bills, channels, accounts})).then(()=>{
+      _idb('readonly',s=>s.getAll()).then(all=>{
+        const over=(all||[]).length-BK_MAX;
+        if(over>0){ const dels=all.slice().sort((a,b)=>a.t.localeCompare(b.t)).slice(0,over); dels.forEach(x=>_idb('readwrite',s=>s.delete(x.t))); }
+      });
+    }).catch(()=>{});
+  }catch(e){}
+}
+function listSnapshots(){ return _idb('readonly',s=>s.getAll()).catch(()=>[]); }
+function restoreSnapshot(t){
+  return _idb('readonly',s=>s.get(t)).then(snap=>{
+    if(snap){ bills=snap.bills||[]; channels=snap.channels||[]; accounts=snap.accounts||[]; }
+    return snap;
+  }).catch(()=>null);
+}
 
 /* ============ 工具：渠道识别 ============ */
 function detectPlatform(text){
@@ -1331,6 +1386,38 @@ function batchDelete(){
   });
 }
 
+/* ============ 备份快照：查看 / 恢复 ============ */
+function showSnapshots(){
+  listSnapshots().then(list=>{
+    const el=$('snapList');
+    if(!list||!list.length){
+      el.innerHTML='<div class="empty" style="padding:20px;text-align:center;font-size:13px;color:var(--muted)">还没有快照，记几笔账后会自动生成</div>';
+    }else{
+      const sorted=list.slice().sort((a,b)=>b.t.localeCompare(a.t));
+      el.innerHTML=sorted.map(s=>{
+        const d=new Date(s.t), p=n=>String(n).padStart(2,'0');
+        return `<div class="snap-item" data-t="${s.t}">
+          <b>${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}</b>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">账单 ${(s.bills||[]).length} 条 · 渠道 ${(s.channels||[]).length} · 账号 ${(s.accounts||[]).length}</div>
+        </div>`;
+      }).join('');
+      el.querySelectorAll('.snap-item').forEach(item=>item.onclick=()=>{
+        confirmDialog('恢复到这份快照？','当前账单/渠道/账号会被覆盖成快照里的内容，确定吗？',()=>{
+          restoreSnapshot(item.dataset.t).then(snap=>{
+            if(!snap){ toast('快照读取失败'); return; }
+            save(); saveChans(); saveAccs();
+            closeSnapshots(); renderLedger(); renderFilterCats(); renderFilterOpts(); renderStatPicks();
+            if($('page-stats').classList.contains('show')) renderStats();
+            toast('已恢复到该快照 ↩️');
+          });
+        });
+      });
+    }
+    $('snapMask').classList.add('show');
+  });
+}
+function closeSnapshots(){ $('snapMask').classList.remove('show'); }
+
 /* ============ 导出/导入 ============ */
 function downloadJSON(data, name){
   const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
@@ -1361,7 +1448,7 @@ function importFromFile(file){
 }
 $('importFile').addEventListener('change', e=>{ if(e.target.files[0]) importFromFile(e.target.files[0]); e.target.value=''; });
 function askClearAll(){
-  confirmDialog('清空全部数据？','这会删除所有账单，且无法恢复。建议先导出备份。', ()=>{
+  confirmDialog('清空全部数据？','这会删除所有账单，若之前有备份快照可恢复。建议先导出备份。', ()=>{
     bills=[]; save(); renderLedger(); renderFilterCats(); toast('已清空');
   });
 }

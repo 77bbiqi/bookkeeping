@@ -515,7 +515,7 @@ body{letter-spacing:.2px}
     <section id="page-ledger" class="page show">
       <div class="couple-head"><span class="sp">✦</span> popo <span class="hh">💗</span> 77 <span class="sp">✦</span></div>
       <div class="overview">
-        <div class="label">本月 · 2026年08月</div>
+        <div class="label" id="ovLabel">本日</div>
         <div class="ov-big gray" id="ovBalance">¥ 0.00</div>
         <div class="ov-sub">
           <div class="col"><div class="v in" id="ovIncome">+¥0.00</div><div class="label">总收入</div></div>
@@ -911,14 +911,14 @@ function dayLabel(dateStr){
   const wd = ['周日','周一','周二','周三','周四','周五','周六'][d.getDay()];
   return `${d.getMonth()+1}月${d.getDate()}日 ${wd}`;
 }
-function monthKey(dateStr){ return dateStr.slice(0,7); }
 function overviewRender(){
-  const mk = new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0');
-  const mb = bills.filter(b=>monthKey(b.time)===mk);
+  /* 账单首页默认显示本日收支 */
+  const today = iso(new Date());
+  const mb = bills.filter(b=>b.time.slice(0,10)===today);
   const inc = mb.filter(b=>b.type==='income').reduce((s,b)=>s+b.amount,0);
   const out = mb.filter(b=>b.type==='expense').reduce((s,b)=>s+b.amount,0);
-  const tr  = mb.filter(b=>b.type==='transfer').reduce((s,b)=>s+b.amount,0);
   const balance = inc - out;
+  $('ovLabel').textContent = '本日 · '+todayStr();
   $('ovIncome').textContent = '+'+fmtMoney(inc);
   $('ovExpense').textContent = '-'+fmtMoney(out);
   $('ovBalance').textContent = fmtMoney(balance);

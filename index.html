@@ -807,12 +807,10 @@ const THEMES = [
   {name:'蓝灰暮', css:'linear-gradient(160deg,#b5c3d6,#7d92ad)'},
   {name:'紫灰暮', css:'linear-gradient(160deg,#c8c1dc,#9d8fbd)'},
 ];
-const PLAT_RE = /京东|淘宝|天猫|拼多多|美团|饿了么|抖音|微信|支付宝|滴滴|线下/;
-
 /* ============ 状态 ============ */
 let bills = [];
-let channels = ['京东','淘宝'];   // 渠道/直播间（可自添加）
-let accounts = ['默认'];          // 账号（可自定义命名）
+let channels = [];                // 渠道/直播间（仅自己添加，无预置）
+let accounts = [];                // 账号（仅自己添加，无默认）
 let settings = {theme:1, mode:'light'};
 let editingId = null;
 let selected = new Set();
@@ -841,11 +839,11 @@ const load = () => {
   try{
     bills = JSON.parse(localStorage.getItem('bk_bills')) || [];
     settings = Object.assign({theme:1, mode:'light'}, JSON.parse(localStorage.getItem('bk_settings')));
-    channels = JSON.parse(localStorage.getItem('bk_channels')) || ['京东','淘宝'];
-    accounts = JSON.parse(localStorage.getItem('bk_accounts')) || ['默认'];
-    /* 旧数据兼容：给没有账号的账单补默认账号 */
-    bills.forEach(b=>{ if(b.account===undefined) b.account='默认'; });
-  }catch(e){ bills=[]; settings={theme:1, mode:'light'}; channels=['京东','淘宝']; accounts=['默认']; }
+    channels = JSON.parse(localStorage.getItem('bk_channels')) || [];
+    accounts = JSON.parse(localStorage.getItem('bk_accounts')) || [];
+    /* 旧数据兼容：没有账号的旧账单账号留空（不再注入默认） */
+    bills.forEach(b=>{ if(b.account===undefined) b.account=''; });
+  }catch(e){ bills=[]; settings={theme:1, mode:'light'}; channels=[]; accounts=[]; }
 };
 const save = () => { localStorage.setItem('bk_bills', JSON.stringify(bills)); };
 const saveChans = () => { localStorage.setItem('bk_channels', JSON.stringify(channels)); };
@@ -854,10 +852,9 @@ const saveAccs  = () => { localStorage.setItem('bk_accounts', JSON.stringify(acc
 /* ============ 工具：渠道识别 ============ */
 function detectPlatform(text){
   if(!text) return '';
-  /* 先匹配用户自定义的渠道/直播间名（如直播间名） */
+  /* 只匹配用户自己添加的渠道/直播间名 */
   for(const c of channels){ if(text.includes(c)) return c; }
-  const m = text.match(PLAT_RE);
-  return m ? m[0] : '';
+  return '';
 }
 
 /* ============ 渲染：侧边栏 & 设置主题 ============ */
@@ -1048,11 +1045,11 @@ function closeConfirm(){ $('confirmMask').classList.remove('show'); }
 function openModal(id){
   editingId = id||null;
   const src = id ? bills.find(b=>b.id===id) : null;
-  draft = src ? {...src} : {type:'expense', amount:'', category:'', note:'', platform:'', account:accounts[0]||'默认', redpkt:false, pending:false, time:nowLocal()};
+  draft = src ? {...src} : {type:'expense', amount:'', category:'', note:'', platform:'', account:accounts[0]||'', redpkt:false, pending:false, time:nowLocal()};
   // 恢复草稿（刷新页面后不丢失已填内容）
   if(!src){
     const saved = localStorage.getItem('bk_draft');
-    if(saved){ try{ const d=JSON.parse(saved); if(d.amount||d.note) draft={...d, account:d.account||accounts[0]||'默认'}; }catch(e){} }
+    if(saved){ try{ const d=JSON.parse(saved); if(d.amount||d.note) draft={...d, account:d.account||accounts[0]||''}; }catch(e){} }
   }
   $('recordMask').classList.add('show');
   // 新记账：第一步先选渠道；编辑旧账单：直接进表单
@@ -1165,12 +1162,13 @@ function saveBill(){
     amount: Math.round(amt*100)/100,
     category: draft.category || (draft.type==='transfer' ? '转账' : draft.type==='income' ? '其他' : '购物'),
     note: draft.note||'',
-    platform: draft.platform||detectPlatform(draft.note)||(channels[0]||'其他'),
-    account: draft.account||accounts[0]||'默认',
+    platform: draft.platform||detectPlatform(draft.note)||'其他',
+    account: draft.account||accounts[0]||'',
     redpkt: !!draft.redpkt,
     pending: false,
     time: draft.time||nowLocal()
   };
+  if(!rec.account){ toast('请先添加并选择账号'); return; }
   if(editingId){
     bills = bills.map(b=>b.id===editingId?rec:b);
   }else{
@@ -1254,7 +1252,7 @@ function importFromFile(file){
     try{
       const data = JSON.parse(r.result);
       const list = Array.isArray(data) ? data : (data.bills||[]);
-      bills = list.filter(b=>b.type).map(b=>({id:b.id||uid(), type:b.type, amount:+b.amount||0, category:b.category||'其他', note:b.note||'', platform:b.platform||'其他', account:b.account||'默认', redpkt:!!b.redpkt, pending:!!b.pending, time:b.time||nowLocal()}));
+      bills = list.filter(b=>b.type).map(b=>({id:b.id||uid(), type:b.type, amount:+b.amount||0, category:b.category||'其他', note:b.note||'', platform:b.platform||'其他', account:b.account||'', redpkt:!!b.redpkt, pending:!!b.pending, time:b.time||nowLocal()}));
       if(data.channels && Array.isArray(data.channels)) channels = data.channels;
       if(data.accounts && Array.isArray(data.accounts)) accounts = data.accounts;
       saveChans(); saveAccs();

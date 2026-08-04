@@ -710,10 +710,6 @@ body{letter-spacing:.2px}
       </div>
       <input id="mAmount" class="fmt-amount" type="number" step="0.01" min="0" placeholder="0.00">
       <div class="fmt-label" id="mFmtLabel">输入金额 · 自动千位分隔：10000 → 10,000.00</div>
-      <div class="form-row" id="redpktRow" style="display:none">
-        <label style="display:flex;align-items:center;gap:10px">💰 这是领的红包？ <button class="switch" id="redpktSwitch"></button></label>
-        <div style="font-size:12px; color:var(--muted); margin-top:6px">勾上后这笔会计入收入</div>
-      </div>
       <div class="form-row">
         <label>备注（可识别渠道，如"XX直播间买的卫衣"）</label>
         <input type="text" id="mNote" placeholder="写点什么..." autocomplete="off">
@@ -1057,7 +1053,7 @@ function closeConfirm(){ $('confirmMask').classList.remove('show'); }
 function openModal(id){
   editingId = id||null;
   const src = id ? bills.find(b=>b.id===id) : null;
-  draft = src ? {...src} : {type:'expense', amount:'', category:'', note:'', platform:'', account:accounts[0]||'', redpkt:false, pending:false, syncTo:accounts.filter(a=>a!==(accounts[0]||'')), time:nowLocal()};
+  draft = src ? {...src} : {type:'expense', amount:'', category:'', note:'', platform:'', account:accounts[0]||'', pending:false, syncTo:accounts.filter(a=>a!==(accounts[0]||'')), time:nowLocal()};
   // 恢复草稿（刷新页面后不丢失已填内容）
   if(!src){
     const saved = localStorage.getItem('bk_draft');
@@ -1082,7 +1078,7 @@ function showFormStep(){
   const cur = draft.platform||channels[0]||'其他';
   $('curChanName').textContent = cur;
   $('curChanIco').textContent = chanIcon(cur);
-  renderTypeTabs(); renderAccRow(); renderRedpkt(); renderSyncRow();
+  renderTypeTabs(); renderAccRow(); renderSyncRow();
   // 不自动聚焦/不弹键盘：用户自己点输入框
 }
 function backToChannel(){ showChannelStep(); }
@@ -1124,11 +1120,6 @@ function renderSyncAccs(){
     draft.syncTo.includes(a) ? draft.syncTo=draft.syncTo.filter(x=>x!==a) : draft.syncTo.push(a);
     renderSyncAccs();
   });
-}
-function renderRedpkt(){
-  if(draft.type!=='income') draft.redpkt=false;
-  $('redpktRow').style.display = draft.type==='income' ? 'block' : 'none';
-  $('redpktSwitch').classList.toggle('on', !!draft.redpkt);
 }
 function nowLocal(){
   const d=new Date(); const p=x=>String(x).padStart(2,'0');
@@ -1181,8 +1172,7 @@ function confirmAdd(){
   closeAddDialog();
 }
 
-document.querySelectorAll('.type-tab').forEach(t=>t.onclick=()=>{ draft.type=t.dataset.t; renderTypeTabs(); renderRedpkt(); renderSyncRow(); });
-$('redpktSwitch').onclick=()=>{ draft.redpkt=!draft.redpkt; renderRedpkt(); renderSyncRow(); };
+document.querySelectorAll('.type-tab').forEach(t=>t.onclick=()=>{ draft.type=t.dataset.t; renderTypeTabs(); renderSyncRow(); });
 $('mAmount').addEventListener('input', e=>{ draft.amount=e.target.value; saveDraft(); });
 $('mNote').addEventListener('input', e=>{
   draft.note=e.target.value; saveDraft();
@@ -1206,7 +1196,7 @@ function saveBill(){
     note: draft.note||'',
     platform: draft.platform||detectPlatform(draft.note)||'其他',
     account: draft.account||accounts[0]||'',
-    redpkt: !!draft.redpkt,
+    redpkt: false,
     pending: false,
     time: draft.time||nowLocal()
   };

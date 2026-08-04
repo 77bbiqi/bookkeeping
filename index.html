@@ -1405,12 +1405,11 @@ function showDayBills(day){
 
 /* ============ 欢迎惊喜 ============ */
 const WELCOME_POOL = [
-  '今天是 {date}，开心哦臭宝~💗',
-  '新的一天开始啦，今天是 {date}，也要元气满满哦臭宝💗',
-  '今天是 {date}，不管多忙都要记得好好吃饭，臭宝💗',
-  '又是想你的每一天，今天是 {date}，臭宝要开心~💗',
-  '今天是 {date}，愿你今天遇到的都是好事，臭宝💗',
-  '早安臭宝~ 今天是 {date}，我们的小日子继续加油💗',
+  '今天是 {date}，开心哦 💗',
+  '今天是 {date}，新的一天也要元气满满哦 💗',
+  '今天是 {date}，不管多忙都要记得好好吃饭 💗',
+  '今天是 {date}，愿你今天遇到的都是好事 💗',
+  '今天是 {date}，又是想你的一天，我们的小日子继续加油 💗',
 ];
 function todayStr(){
   const d = new Date();
@@ -1420,8 +1419,10 @@ function welcomeText(){
   const now = new Date();
   const h = now.getHours();
   if(h>=23 || h<6) return {main:'辛苦啦臭宝，我们要早点休息哦', sub:'晚安，好梦 💗'};
+  /* 按时间自动换问候语：早安 / 午安 / 晚上好 */
+  const g = h<12 ? '早安' : (h<18 ? '午安' : '晚上好');
   const doy = Math.floor((now - new Date(now.getFullYear(),0,1))/86400000);
-  return { main: WELCOME_POOL[doy % WELCOME_POOL.length].replace('{date}', todayStr()), sub:'popo 💗 77' };
+  return { main: g + '臭宝~ ' + WELCOME_POOL[doy % WELCOME_POOL.length].replace('{date}', todayStr()), sub:'popo 💗 77' };
 }
 function heartRain(container, n, chars){
   container.innerHTML='';

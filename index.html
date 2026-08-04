@@ -12,7 +12,6 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
 /* ============ 基础变量 ============ */
 :root[data-theme="light"]{
@@ -232,14 +231,9 @@ input,select{font-family:inherit; color:inherit}
 .period-btn.on{background:var(--surface); color:var(--text); box-shadow:var(--shadow)}
 .card{background:var(--surface); backdrop-filter:blur(14px); border-radius:16px; padding:14px; margin-bottom:12px; box-shadow:var(--shadow)}
 .card h3{font-size:14px; color:var(--muted); margin-bottom:10px; font-weight:600}
-.chart-wrap{position:relative; height:240px}
-.chart-wrap.small{height:200px}
 .stats-link{border-top:1px solid var(--line); padding-top:12px; margin-top:12px}
 .stats-link .bill-item{margin:6px 0; box-shadow:none; background:var(--surface-2)}
 .stats-link .st-title{font-size:13px; color:var(--muted); margin-bottom:8px}
-.legend{display:flex; flex-wrap:wrap; gap:6px 14px; margin-top:10px}
-.legend .lg{display:flex; align-items:center; gap:5px; font-size:12px; color:var(--muted)}
-.legend .dot{width:9px; height:9px; border-radius:3px}
 
 /* ============ 设置页 ============ */
 .set-item{display:flex; align-items:center; gap:12px; padding:14px; background:var(--surface); border-radius:14px; margin-bottom:10px; box-shadow:var(--shadow)}
@@ -434,8 +428,22 @@ body{letter-spacing:.2px}
 /* 待补金额 */
 .bill-item.pending{opacity:.88}
 .pending-tag{font-size:10px; font-weight:800; padding:1px 6px; border-radius:5px; background:rgba(234,179,8,.18); color:#d97706}
-/* 统计筛选 */
-.stat-filter{display:flex; gap:8px; flex-wrap:wrap; margin:12px 0}
+/* 统计筛选（抽屉式：渠道 / 账号 两个入口） */
+.stat-picks{display:flex; gap:10px; margin:12px 0}
+.stat-pick{
+  flex:1; display:flex; align-items:center; justify-content:center; gap:6px;
+  padding:12px 8px; border-radius:14px; font-size:14px; font-weight:700;
+  background:var(--surface); box-shadow:var(--shadow); color:var(--text);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.stat-pick:active{background:var(--surface-2)}
+.drawer-item{
+  display:flex; align-items:center; gap:10px; width:100%; padding:15px 14px;
+  border-radius:12px; font-size:15px; font-weight:700; text-align:left; color:var(--text);
+}
+.drawer-item:active{background:var(--surface-2)}
+.drawer-item .di-check{margin-left:auto; color:#8b5cf6; font-weight:900}
+.drawer-item.cur{background:rgba(167,139,250,.18)}
 /* 渠道统计表 */
 .chan-table{width:100%; border-collapse:collapse; font-size:13px}
 .chan-table th{text-align:left; color:var(--muted); font-weight:600; padding:8px 6px; border-bottom:1px solid var(--line)}
@@ -461,16 +469,6 @@ body{letter-spacing:.2px}
 .cal-day.today{border:1.5px solid #8b5cf6}
 .cal-day.blank{background:transparent; cursor:default}
 .cal-day.sel{background:rgba(167,139,250,.3)}
-/* 红包目标 */
-.goal-item{display:flex; align-items:center; gap:10px; padding:10px 4px; border-bottom:1px solid var(--line)}
-.goal-item:last-child{border-bottom:none}
-.goal-item .g-name{flex:1; font-weight:800; font-size:14px; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
-.goal-item .g-bar{flex:1.2; min-width:110px}
-.goal-bar{height:8px; border-radius:999px; background:var(--surface-2); overflow:hidden}
-.goal-bar i{display:block; height:100%; border-radius:999px; background:linear-gradient(90deg,#f472b6,#8b5cf6)}
-.goal-item .g-info{font-size:11px; color:var(--muted); text-align:right; line-height:1.5}
-.goal-item .g-info b{color:var(--text); font-size:12px}
-.goal-del{font-size:16px; color:var(--muted); padding:4px}
 #addInput{width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--line); background:var(--surface-2); font-size:15px; outline:none; margin-bottom:16px}
 #addInput:focus{border-color:#8b5cf6}
 </style>
@@ -553,8 +551,8 @@ body{letter-spacing:.2px}
           <div class="fp-row">
             <div class="fp-label">类型</div>
             <div class="fp-chips">
-              <button class="chip" data-f="t-all">全部</button>
-              <button class="chip on" data-f="t-expense">支出</button>
+              <button class="chip on" data-f="t-all">全部</button>
+              <button class="chip" data-f="t-expense">支出</button>
               <button class="chip" data-f="t-income">收入</button>
               <button class="chip" data-f="t-transfer">转账</button>
             </div>
@@ -597,7 +595,10 @@ body{letter-spacing:.2px}
         <button class="period-btn on" data-p="month">本月</button>
         <button class="period-btn" data-p="year">本年</button>
       </div>
-      <div class="stat-filter" id="statFilter"></div>
+      <div class="stat-picks">
+        <button class="stat-pick" id="chanPick">📺 渠道 · 全部</button>
+        <button class="stat-pick" id="accPick">👤 账号 · 全部</button>
+      </div>
       <div class="overview">
         <div class="label" id="stRange">本月统计</div>
         <div style="display:flex; gap:10px">
@@ -621,19 +622,6 @@ body{letter-spacing:.2px}
       <div class="card stats-link" id="dayBillsWrap" style="display:none">
         <div class="st-title" id="dayBillsTitle"></div>
         <div id="dayBills"></div>
-      </div>
-      <div class="card">
-        <h3>🎯 红包购物目标 <span style="float:right; font-size:12px; color:var(--muted)">还差多少红包能买</span></h3>
-        <div id="goalList"></div>
-        <button class="add-btn" onclick="showGoalDialog()">➕ 设置 / 修改目标</button>
-      </div>
-      <div class="card">
-        <h3>支出分类排行</h3>
-        <div class="chart-wrap"><canvas id="pieChart"></canvas></div>
-      </div>
-      <div class="card stats-link" id="catBillsWrap" style="display:none">
-        <div class="st-title" id="catBillsTitle"></div>
-        <div id="catBills"></div>
       </div>
     </section>
 
@@ -720,7 +708,6 @@ body{letter-spacing:.2px}
       </div>
       <input id="mAmount" class="fmt-amount" type="number" step="0.01" min="0" placeholder="0.00">
       <div class="fmt-label" id="mFmtLabel">输入金额 · 自动千位分隔：10000 → 10,000.00</div>
-      <div class="cat-grid" id="catGrid"></div>
       <div class="form-row" id="redpktRow" style="display:none">
         <label style="display:flex;align-items:center;gap:10px">💰 这是领的红包？ <button class="switch" id="redpktSwitch"></button></label>
         <div style="font-size:12px; color:var(--muted); margin-top:6px">勾上后计入收入，并单独累计成「攒的红包」</div>
@@ -746,14 +733,20 @@ body{letter-spacing:.2px}
   <div class="confirm-modal">
     <div class="t" id="addTitle">添加渠道</div>
     <div class="d" id="addDesc"></div>
-    <div class="fp-row" id="goalChanWrap" style="display:none; margin-bottom:10px">
-      <div class="fp-chips" id="goalChanChips"></div>
-    </div>
     <input type="text" id="addInput" placeholder="输入名称..." autocomplete="off">
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeAddDialog()">取消</button>
       <button class="btn-confirm" id="addOkBtn" onclick="confirmAdd()">添加</button>
     </div>
+  </div>
+</div>
+
+<!-- ======= 统计：渠道/账号 抽屉选择 ======= -->
+<div class="mask" id="statDrawer">
+  <div class="actionsheet">
+    <div class="st-title" id="statDrawerTitle" style="padding:10px 14px; font-size:14px; color:var(--muted)"></div>
+    <div id="statDrawerList"></div>
+    <button class="act-cancel" onclick="closeStatDrawer()">取消</button>
   </div>
 </div>
 
@@ -814,24 +807,22 @@ const THEMES = [
   {name:'蓝灰暮', css:'linear-gradient(160deg,#b5c3d6,#7d92ad)'},
   {name:'紫灰暮', css:'linear-gradient(160deg,#c8c1dc,#9d8fbd)'},
 ];
-const CHART_COLORS = ['#94a3b8','#fca5a5','#86efac','#fcd34d','#93c5fd','#c4b5fd','#f9a8d4','#fdba74','#99f6e4','#e2e8f0'];
 const PLAT_RE = /京东|淘宝|天猫|拼多多|美团|饿了么|抖音|微信|支付宝|滴滴|线下/;
 
 /* ============ 状态 ============ */
 let bills = [];
 let channels = ['京东','淘宝'];   // 渠道/直播间（可自添加）
 let accounts = ['默认'];          // 账号（可自定义命名）
-let goals = {};                   // 渠道 -> 目标价（红包购物目标）
 let settings = {theme:1, mode:'light'};
 let editingId = null;
 let selected = new Set();
 let draft = null;
-let addKind = null;               // channel / account / goal
-let goalEditChan = '';
+let addKind = null;               // channel / account
 let selDay = '';
-let statFilterVal = 'all';        // all = 所有平台+所有账号
-const filter = {t:'expense', cat:'', start:'', end:'', keyword:'', acc:'', chan:''};
-let pieChart=null;
+let statChan = 'all';             // 统计筛选：渠道（all=全部）
+let statAcc = 'all';              // 统计筛选：账号（all=全部）
+let statDrawerKind = '';          // chan / acc
+const filter = {t:'all', cat:'', start:'', end:'', keyword:'', acc:'', chan:''};
 
 /* 渠道/直播间的图标（统一购物车，后续可细化） */
 function chanIcon(c){ return '🛒'; }
@@ -852,15 +843,13 @@ const load = () => {
     settings = Object.assign({theme:1, mode:'light'}, JSON.parse(localStorage.getItem('bk_settings')));
     channels = JSON.parse(localStorage.getItem('bk_channels')) || ['京东','淘宝'];
     accounts = JSON.parse(localStorage.getItem('bk_accounts')) || ['默认'];
-    goals = JSON.parse(localStorage.getItem('bk_goals')) || {};
     /* 旧数据兼容：给没有账号的账单补默认账号 */
     bills.forEach(b=>{ if(b.account===undefined) b.account='默认'; });
-  }catch(e){ bills=[]; settings={theme:1, mode:'light'}; channels=['京东','淘宝']; accounts=['默认']; goals={}; }
+  }catch(e){ bills=[]; settings={theme:1, mode:'light'}; channels=['京东','淘宝']; accounts=['默认']; }
 };
 const save = () => { localStorage.setItem('bk_bills', JSON.stringify(bills)); };
 const saveChans = () => { localStorage.setItem('bk_channels', JSON.stringify(channels)); };
 const saveAccs  = () => { localStorage.setItem('bk_accounts', JSON.stringify(accounts)); };
-const saveGoals = () => { localStorage.setItem('bk_goals', JSON.stringify(goals)); };
 
 /* ============ 工具：渠道识别 ============ */
 function detectPlatform(text){
@@ -899,6 +888,8 @@ function switchPage(name){
   document.querySelectorAll('[data-nav]').forEach(n=>n.classList.toggle('active', n.dataset.nav===name));
   if(name==='stats') renderStats();
   else if(name==='ledger') renderLedger();
+  /* 记账喽按钮只在账单页显示 */
+  $('fab').style.display = name==='ledger' ? '' : 'none';
   window.scrollTo({top:0});
 }
 
@@ -1054,15 +1045,10 @@ function confirmDialog(title, desc, cb){
 function closeConfirm(){ $('confirmMask').classList.remove('show'); }
 
 /* ============ 记账弹窗 ============ */
-function catGridHTML(){
-  return Object.entries(CATS).map(([k,v])=>`
-    <button class="cat-cell ${draft&&draft.category===k?'on':''}" data-cat="${k}">
-      <span class="ci">${v.ico}</span>${k}</button>`).join('');
-}
 function openModal(id){
   editingId = id||null;
   const src = id ? bills.find(b=>b.id===id) : null;
-  draft = src ? {...src} : {type:'expense', amount:'', category:'餐饮', note:'', platform:'', account:accounts[0]||'默认', redpkt:false, pending:false, time:nowLocal()};
+  draft = src ? {...src} : {type:'expense', amount:'', category:'', note:'', platform:'', account:accounts[0]||'默认', redpkt:false, pending:false, time:nowLocal()};
   // 恢复草稿（刷新页面后不丢失已填内容）
   if(!src){
     const saved = localStorage.getItem('bk_draft');
@@ -1087,7 +1073,7 @@ function showFormStep(){
   const cur = draft.platform||channels[0]||'其他';
   $('curChanName').textContent = cur;
   $('curChanIco').textContent = chanIcon(cur);
-  renderTypeTabs(); renderCatGrid(); renderAccRow(); renderRedpkt();
+  renderTypeTabs(); renderAccRow(); renderRedpkt();
   // 不自动聚焦/不弹键盘：用户自己点输入框
 }
 function backToChannel(){ showChannelStep(); }
@@ -1122,59 +1108,35 @@ function renderTypeTabs(){
     t.classList.toggle(t.dataset.t, on);
   });
 }
-function renderCatGrid(){ $('catGrid').innerHTML = catGridHTML(); bindCat(); }
-function bindCat(){
-  document.querySelectorAll('[data-cat]').forEach(el=>el.onclick=()=>{ draft.category=el.dataset.cat; renderCatGrid(); });
-}
-
-/* 添加渠道 / 账号 / 目标 输入弹窗 */
+/* 添加渠道 / 账号 输入弹窗 */
 function showAddDialog(kind){
   addKind=kind;
-  $('goalChanWrap').style.display = kind==='goal' ? 'flex' : 'none';
   if(kind==='channel'){
     $('addTitle').textContent='添加渠道 / 直播间';
     $('addDesc').textContent='输入渠道或直播间的名字（比如直播间的名字）';
     $('addInput').placeholder='输入名称，如"XX甄选直播间"';
     $('addInput').value='';
-  }else if(kind==='account'){
+  }else{
     $('addTitle').textContent='添加账号';
     $('addDesc').textContent='输入账号的名字，比如"手机1""支付宝"';
     $('addInput').placeholder='输入名称，如"手机1"';
     $('addInput').value='';
-  }else{
-    $('addTitle').textContent='🎯 设置红包购物目标';
-    $('addDesc').textContent='先选直播间渠道，再输入想买商品的价格';
-    goalEditChan = Object.keys(goals)[0] || channels[0];
-    renderGoalChanChips();
-    $('addInput').placeholder='目标价格，如 199.00';
-    $('addInput').value = (goalEditChan && goals[goalEditChan]) ? goals[goalEditChan] : '';
   }
   $('addMask').classList.add('show');
   setTimeout(()=>$('addInput').focus(), 250);
 }
-function renderGoalChanChips(){
-  $('goalChanChips').innerHTML = channels.map(c=>`<button class="chip ${c===goalEditChan?'on':''}" data-gc="${c}">${c}</button>`).join('');
-  document.querySelectorAll('[data-gc]').forEach(el=>el.onclick=()=>{ goalEditChan=el.dataset.gc; $('addInput').value = goals[goalEditChan]||''; renderGoalChanChips(); });
-}
 function closeAddDialog(){ $('addMask').classList.remove('show'); addKind=null; }
 function confirmAdd(){
   const name = $('addInput').value.trim();
-  if(addKind==='goal'){
-    const amt = parseFloat(name);
-    if(!goalEditChan || !amt || amt<=0){ toast('请输入正确的目标价格'); return; }
-    goals[goalEditChan]=Math.round(amt*100)/100; saveGoals();
-    closeAddDialog(); renderGoals(); toast('已设置目标 🎯');
-    return;
-  }
   if(!name){ toast('请输入名称'); return; }
   if(addKind==='channel'){
     if(channels.includes(name)){ toast('这个渠道已经有了'); return; }
-    channels.push(name); saveChans(); renderChanGrid(); renderFilterOpts(); renderStatFilter();
+    channels.push(name); saveChans(); renderChanGrid(); renderFilterOpts(); renderStatPicks();
     draft.platform = name; showFormStep();
     toast('已添加渠道「'+name+'」');
   }else{
     if(accounts.includes(name)){ toast('这个账号已经有了'); return; }
-    accounts.push(name); saveAccs(); renderAccRow(); renderFilterOpts(); renderStatFilter();
+    accounts.push(name); saveAccs(); renderAccRow(); renderFilterOpts(); renderStatPicks();
     toast('已添加账号「'+name+'」');
   }
   closeAddDialog();
@@ -1201,7 +1163,7 @@ function saveBill(){
     id: editingId||uid(),
     type: draft.type,
     amount: Math.round(amt*100)/100,
-    category: draft.category||'其他',
+    category: draft.category || (draft.type==='transfer' ? '转账' : draft.type==='income' ? '其他' : '购物'),
     note: draft.note||'',
     platform: draft.platform||detectPlatform(draft.note)||(channels[0]||'其他'),
     account: draft.account||accounts[0]||'默认',
@@ -1283,7 +1245,7 @@ function downloadJSON(data, name){
 }
 function exportAll(){
   showLoading('正在打包备份...', 600);
-  setTimeout(()=>downloadJSON({app:'77-bookkeeping', exportAt:new Date().toISOString(), bills, channels, accounts, goals}), 400);
+  setTimeout(()=>downloadJSON({app:'77-bookkeeping', exportAt:new Date().toISOString(), bills, channels, accounts}), 400);
   toast('备份已导出 📤');
 }
 function importFromFile(file){
@@ -1295,9 +1257,8 @@ function importFromFile(file){
       bills = list.filter(b=>b.type).map(b=>({id:b.id||uid(), type:b.type, amount:+b.amount||0, category:b.category||'其他', note:b.note||'', platform:b.platform||'其他', account:b.account||'默认', redpkt:!!b.redpkt, pending:!!b.pending, time:b.time||nowLocal()}));
       if(data.channels && Array.isArray(data.channels)) channels = data.channels;
       if(data.accounts && Array.isArray(data.accounts)) accounts = data.accounts;
-      if(data.goals && typeof data.goals==='object') goals = data.goals;
-      saveChans(); saveAccs(); saveGoals();
-      save(); renderLedger(); renderFilterCats(); renderFilterOpts(); renderStatFilter();
+      saveChans(); saveAccs();
+      save(); renderLedger(); renderFilterCats(); renderFilterOpts(); renderStatPicks();
       toast(`导入成功，共 ${bills.length} 条 🎉`);
     }catch(e){ toast('文件格式不对哦'); }
   };
@@ -1342,20 +1303,40 @@ function renderStats(){
   $('stIn').textContent='+'+fmtMoney(inc);
   $('stOut').textContent='-'+fmtMoney(out);
   $('stBalance').textContent=fmtMoney(inc-out);
-  renderRedpktTotal(); renderChanStats(list); renderCalendar(); renderGoals(); renderPie(list);
+  renderRedpktTotal(); renderChanStats(list); renderCalendar();
 }
-function renderStatFilter(){
-  const items = [{v:'all', t:'🌐 所有平台+所有账号'}];
-  channels.forEach(c=>items.push({v:'c:'+c, t:'📺 '+c}));
-  accounts.forEach(a=>items.push({v:'a:'+a, t:'👤 '+a}));
-  $('statFilter').innerHTML = items.map(it=>`<button class="chip ${statFilterVal===it.v?'on':''}" data-sf="${it.v}">${it.t}</button>`).join('');
-  document.querySelectorAll('[data-sf]').forEach(el=>el.onclick=()=>{ statFilterVal=el.dataset.sf; renderStats(); });
+function renderStatPicks(){
+  $('chanPick').textContent = '📺 渠道 · ' + (statChan==='all' ? '全部' : statChan);
+  $('accPick').textContent = '👤 账号 · ' + (statAcc==='all' ? '全部' : statAcc);
 }
+function openStatDrawer(kind){
+  statDrawerKind = kind;
+  const isChan = kind==='chan';
+  $('statDrawerTitle').textContent = isChan ? '选择渠道 / 直播间' : '选择账号';
+  const items = isChan
+    ? [{v:'all', t:'📺 全部渠道'}, ...channels.map(c=>({v:c, t:'📺 '+c}))]
+    : [{v:'all', t:'👤 全部账号'}, ...accounts.map(a=>({v:a, t:'👤 '+a}))];
+  const cur = isChan ? statChan : statAcc;
+  $('statDrawerList').innerHTML = items.map(it=>`
+    <button class="drawer-item ${it.v===cur?'cur':''}" data-sv="${it.v}">
+      ${it.t}${it.v===cur?'<span class="di-check">✓</span>':''}
+    </button>`).join('');
+  document.querySelectorAll('[data-sv]').forEach(el=>el.onclick=()=>{
+    const v = el.dataset.sv;
+    if(isChan) statChan=v; else statAcc=v;
+    closeStatDrawer(); renderStatPicks(); renderStats();
+  });
+  $('statDrawer').classList.add('show');
+}
+function closeStatDrawer(){ $('statDrawer').classList.remove('show'); }
 function applyStatFilter(list){
-  if(statFilterVal==='all') return list;
-  if(statFilterVal.startsWith('c:')) return list.filter(b=>b.platform===statFilterVal.slice(2));
-  return list.filter(b=>b.account===statFilterVal.slice(2));
+  let r = list;
+  if(statChan!=='all') r = r.filter(b=>b.platform===statChan);
+  if(statAcc!=='all') r = r.filter(b=>b.account===statAcc);
+  return r;
 }
+$('chanPick').onclick=()=>openStatDrawer('chan');
+$('accPick').onclick=()=>openStatDrawer('acc');
 function renderRedpktTotal(){
   const {label} = periodRange();
   const endIso = iso(new Date());
@@ -1367,7 +1348,7 @@ function renderRedpktTotal(){
 }
 function renderChanStats(list){
   const filteredAll = applyStatFilter(bills); // 全部时间，按当前渠道/账号筛选
-  const only = statFilterVal.startsWith('c:') ? statFilterVal.slice(2) : null;
+  const only = statChan!=='all' ? statChan : null;
   const rows = channels.map(c=>{
     if(only && c!==only) return null;
     const bs = list.filter(b=>b.platform===c);
@@ -1421,56 +1402,6 @@ function showDayBills(day){
   $('dayBills').querySelectorAll('[data-id]').forEach(el=>el.addEventListener('click',()=>{ if(!batchMode()) openModal(el.dataset.id); }));
   $('dayBillsWrap').scrollIntoView({behavior:'smooth', block:'nearest'});
 }
-function renderGoals(){
-  const items = channels.map(c=>{
-    if(goals[c]===undefined) return null;
-    const acc = bills.filter(b=>b.redpkt && b.platform===c).reduce((s,b)=>s+b.amount,0);
-    const target = goals[c];
-    const remain = Math.max(0, target - acc);
-    const pct = target>0 ? Math.min(100, acc/target*100) : 0;
-    return `<div class="goal-item">
-      <span class="dot" style="background:${chanColor(c)}"></span>
-      <span class="g-name">${c}</span>
-      <div class="g-bar"><div class="goal-bar"><i style="width:${pct}%"></i></div></div>
-      <div class="g-info">已攒 <b>${fmtMoney(acc)}</b><br>还差 <b>${fmtMoney(remain)}</b> / ${fmtMoney(target)}</div>
-      <button class="goal-del" onclick="delGoal('${c}')">✕</button>
-    </div>`;
-  }).filter(Boolean).join('');
-  $('goalList').innerHTML = items || '<div class="empty" style="padding:16px">还没有设置目标，点下方按钮添加</div>';
-}
-function delGoal(c){ delete goals[c]; saveGoals(); renderGoals(); toast('已删除目标'); }
-function renderPie(list){
-  const byCat={};
-  list.filter(b=>b.type==='expense').forEach(b=>{ byCat[b.category]=(byCat[b.category]||0)+b.amount; });
-  // 只保留有账单的分类，并按金额从高到低排序
-  const pairs = Object.entries(byCat).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
-  const labels = pairs.map(p=>p[0]), vals = pairs.map(p=>p[1]);
-  const colors = labels.map((_,i)=>CHART_COLORS[i%CHART_COLORS.length]);
-  const muted = getComputedStyle(document.body).getPropertyValue('--muted').trim();
-  const ctx=$('pieChart');
-  if(pieChart) pieChart.destroy();
-  if(!labels.length){
-    pieChart = new Chart(ctx,{type:'bar', data:{labels:['暂无支出'], datasets:[{data:[0],backgroundColor:['#e2e8f0'],borderRadius:8}]}, options:{maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{ticks:{color:muted,font:{size:11}},grid:{display:false}},y:{ticks:{color:muted,font:{size:10},callback:v=>v>=1000?(v/1000)+'k':v},grid:{color:'rgba(128,128,128,.1)'}}}}});
-    $('catBillsWrap').style.display='none';
-    return;
-  }
-  pieChart = new Chart(ctx,{type:'bar', data:{labels, datasets:[{data:vals, backgroundColor:colors, borderRadius:10, maxBarThickness:44}]}, options:{
-    maintainAspectRatio:false,
-    onClick:(evt,els)=>{ if(els.length){ const i=els[0].index; showCatBills(labels[i]); } },
-    plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>' ¥ '+fmtMoney(c.parsed.y)}}},
-    scales:{x:{ticks:{color:muted, font:{size:11}}, grid:{display:false}}, y:{beginAtZero:true, ticks:{color:muted, font:{size:10}, callback:v=>v>=1000?(v/1000)+'k':v}, grid:{color:'rgba(128,128,128,.1)'}}}
-  }});
-}
-function showCatBills(cat){
-  const list = applyStatFilter(bills).filter(b=>b.category===cat).sort((a,b)=>b.time.localeCompare(a.time)).slice(0,30);
-  $('catBillsWrap').style.display='block';
-  $('catBillsTitle').textContent = `${CATS[cat]?.ico||''} ${cat} · 共 ${list.length} 条`;
-  $('catBills').innerHTML = list.map(billHTML).join('');
-  $('catBills').querySelectorAll('[data-id]').forEach(el=>{
-    el.addEventListener('click',()=>{ if(!batchMode()) openModal(el.dataset.id); });
-  });
-  $('catBillsWrap').scrollIntoView({behavior:'smooth', block:'nearest'});
-}
 
 /* ============ 欢迎惊喜 ============ */
 const WELCOME_POOL = [
@@ -1515,7 +1446,7 @@ function closeWelcome(){ $('welcome').classList.remove('show'); }
 
 /* ============ 初始化 ============ */
 document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ closeModal(); closeConfirm(); closeActions(); } });
-load(); applyTheme(); renderThemes(); renderFilterCats(); renderFilterOpts(); renderStatFilter(); renderLedger(); openWelcome();
+load(); applyTheme(); renderThemes(); renderFilterCats(); renderFilterOpts(); renderStatPicks(); renderLedger(); openWelcome();
 </script>
 </body>
 </html>

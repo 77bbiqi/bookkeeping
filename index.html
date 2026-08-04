@@ -581,9 +581,9 @@ body{letter-spacing:.2px}
     <!-- ======= 统计页 ======= -->
     <section id="page-stats" class="page">
       <div class="period-row">
-        <button class="period-btn" data-p="day">本日</button>
+        <button class="period-btn on" data-p="day">本日</button>
         <button class="period-btn" data-p="week">本周</button>
-        <button class="period-btn on" data-p="month">本月</button>
+        <button class="period-btn" data-p="month">本月</button>
         <button class="period-btn" data-p="year">本年</button>
       </div>
       <div class="stat-picks">
@@ -1253,7 +1253,7 @@ function askClearAll(){
 }
 
 /* ============ 统计 ============ */
-let period='month';
+let period='day';
 document.querySelectorAll('.period-btn').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('.period-btn').forEach(x=>x.classList.remove('on'));
   b.classList.add('on'); period=b.dataset.p; renderStats();

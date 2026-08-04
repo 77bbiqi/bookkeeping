@@ -287,7 +287,7 @@ input,select{font-family:inherit; color:inherit}
 .cat-cell.on .ci{transform:scale(1.15)}
 .form-row{margin-bottom:12px}
 .form-row label{font-size:12px; color:var(--muted); display:block; margin-bottom:5px}
-.form-row input[type=text], .form-row input[type=datetime-local]{
+.form-row input[type=text], .form-row input[type=datetime-local], .form-row input[type=date]{
   width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--line);
   background:var(--surface-2); font-size:15px; outline:none;
 }
@@ -716,7 +716,7 @@ body{letter-spacing:.2px}
       </div>
       <div class="form-row">
         <label>时间</label>
-        <input type="datetime-local" id="mTime">
+        <input type="date" id="mTime">
       </div>
       <div class="modal-btns">
         <button class="btn-cancel" onclick="closeModal()">取消</button>
@@ -1039,7 +1039,7 @@ function billHTML(b){
     <div class="cat-ico" style="background:${cat.c}22">${cat.ico}</div>
     <div class="mid">
       <div class="note">${note}</div>
-      <div class="meta">${plat}${acc}${pend}${b.category} · ${b.time.slice(5,16)}</div>
+      <div class="meta">${plat}${acc}${pend}${b.category} · ${b.time.slice(5,10)}</div>
     </div>
     <div class="amt ${amtCls}">${b.pending?'待补':sign+fmtMoney(b.amount)}</div>
   </div>`;
@@ -1130,7 +1130,7 @@ function showFormStep(){
   $('stepForm').style.display='block';
   $('mAmount').value = draft.amount!==''?draft.amount:'';
   $('mNote').value = draft.note||'';
-  $('mTime').value = draft.time||nowLocal();
+  $('mTime').value = (draft.time||nowLocal()).slice(0,10);
   const cur = draft.platform||channels[0]||'其他';
   $('curChanName').textContent = cur;
   $('curChanIco').textContent = chanIcon(cur);
@@ -1179,7 +1179,7 @@ function renderSyncAccs(){
 }
 function nowLocal(){
   const d=new Date(); const p=x=>String(x).padStart(2,'0');
-  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
 }
 function renderTypeTabs(){
   document.querySelectorAll('.type-tab').forEach(t=>{
@@ -1254,7 +1254,7 @@ function saveBill(){
     account: draft.account||accounts[0]||'',
     redpkt: false,
     pending: false,
-    time: draft.time||nowLocal()
+    time: (draft.time||nowLocal()).slice(0,10)
   };
   if(!rec.account){ toast('请先添加并选择账号'); return; }
   if(editingId){

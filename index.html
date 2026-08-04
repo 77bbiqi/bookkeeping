@@ -445,21 +445,23 @@ body{letter-spacing:.2px}
 .drawer-item .di-check{margin-left:auto; color:#8b5cf6; font-weight:900}
 .drawer-item.cur{background:rgba(167,139,250,.18)}
 /* 日历 */
-.cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:2px}
-.cal-wd{text-align:center; font-size:10px; color:var(--muted); font-weight:600; padding:2px 0}
-.cal-day{
-  border-radius:8px; padding:3px 1px; text-align:center; min-height:30px;
-  background:var(--surface-2); cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:2px;
+/* 横向日期条日历 */
+.cal-hstrip{display:flex; align-items:center; gap:6px}
+.cal-arrow{width:28px; height:40px; border-radius:8px; background:var(--surface-2); color:var(--muted); font-size:13px; flex-shrink:0}
+.cal-arrow:active{background:var(--surface)}
+.cal-strip{flex:1; display:flex; gap:4px; overflow-x:auto; scroll-behavior:smooth; padding:4px 2px; scrollbar-width:none}
+.cal-strip::-webkit-scrollbar{display:none}
+.cal-cell{
+  flex:0 0 42px; display:flex; flex-direction:column; align-items:center; gap:3px;
+  padding:6px 0 5px; border-radius:10px; background:var(--surface-2); cursor:pointer;
 }
-.cal-day:active{transform:scale(.95)}
-.cal-day .n{font-size:11px; font-weight:800; color:var(--text); line-height:1.1}
-.cal-day .cdots{display:flex; gap:2px; height:4px; align-items:center; justify-content:center}
-.cal-day .cdots i{width:4px; height:4px; border-radius:50%}
-.cal-day .cdots .dot-in{background:var(--ok)}
-.cal-day .cdots .dot-out{background:var(--danger)}
-.cal-day.today{border:1px solid #8b5cf6}
-.cal-day.blank{background:transparent; cursor:default}
-.cal-day.sel{background:rgba(167,139,250,.3)}
+.cal-cell:active{transform:scale(.94)}
+.cal-cell .cw{font-size:9px; color:var(--muted); font-weight:600}
+.cal-cell .cn{font-size:15px; font-weight:800; color:var(--text); line-height:1}
+.cal-cell .cd{width:5px; height:5px; border-radius:50%}
+.cal-cell.today{border:1px solid #8b5cf6}
+.cal-cell.sel{background:rgba(167,139,250,.35)}
+.cal-legend{font-size:11px; color:var(--muted); margin-top:8px}
 #addInput{width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--line); background:var(--surface-2); font-size:15px; outline:none; margin-bottom:16px}
 #addInput:focus{border-color:#8b5cf6}
 </style>
@@ -600,7 +602,12 @@ body{letter-spacing:.2px}
       </div>
       <div class="card">
         <h3>📅 本月日历 <span style="float:right; font-size:12px; color:var(--muted)" id="calHint"></span></h3>
-        <div id="calGrid"></div>
+        <div class="cal-hstrip">
+          <button class="cal-arrow" id="calPrev">◀</button>
+          <div class="cal-strip" id="calStrip"></div>
+          <button class="cal-arrow" id="calNext">▶</button>
+        </div>
+        <div class="cal-legend">● 当天有账（绿=收入、红=支出）· 点日期看当天账单</div>
       </div>
       <div class="card stats-link" id="dayBillsWrap" style="display:none">
         <div class="st-title" id="dayBillsTitle"></div>
@@ -1318,31 +1325,35 @@ function applyStatFilter(list){
 }
 $('chanPick').onclick=()=>openStatDrawer('chan');
 $('accPick').onclick=()=>openStatDrawer('acc');
+$('calPrev').onclick=()=>$('calStrip').scrollBy({left:-168, behavior:'smooth'});
+$('calNext').onclick=()=>$('calStrip').scrollBy({left:168, behavior:'smooth'});
 function renderCalendar(){
   const now = new Date();
   const y = now.getFullYear(), m = now.getMonth();
   const daysInMonth = new Date(y, m+1, 0).getDate();
-  /* 周一为一周开头 */
-  const firstOffset = (new Date(y, m, 1).getDay() + 6) % 7; // 0 = 周一
   const todayIso = iso(now);
   const filtered = applyStatFilter(bills);
-  const cells = ['一','二','三','四','五','六','日'].map(w=>`<div class="cal-wd">${w}</div>`);
-  for(let i=0;i<firstOffset;i++) cells.push('<div class="cal-day blank"></div>');
-  for(let d=1; d<=daysInMonth; d++){
+  const wd = ['日','一','二','三','四','五','六'];
+  $('calStrip').innerHTML = Array.from({length:daysInMonth}, (_, i)=>{
+    const d = i+1;
     const k = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const dayB = filtered.filter(b=>b.time.slice(0,10)===k);
     const hasIn = dayB.some(b=>b.type==='income');
     const hasOut = dayB.some(b=>b.type==='expense');
-    cells.push(`<div class="cal-day ${k===todayIso?'today':''} ${k===selDay?'sel':''}" data-d="${k}">
-      <span class="n">${d}</span>
-      ${(hasIn||hasOut)?`<span class="cdots">${hasIn?'<i class="dot-in"></i>':''}${hasOut?'<i class="dot-out"></i>':''}</span>`:''}
-    </div>`);
-  }
-  $('calGrid').innerHTML = cells.join('');
-  $('calGrid').querySelectorAll('.cal-day[data-d]').forEach(el=>el.onclick=()=>{
+    const dotBg = hasIn&&hasOut ? 'linear-gradient(90deg,var(--ok) 50%,var(--danger) 50%)' : hasIn ? 'var(--ok)' : hasOut ? 'var(--danger)' : 'transparent';
+    return `<div class="cal-cell ${k===todayIso?'today':''} ${k===selDay?'sel':''}" data-d="${k}">
+      <span class="cw">${wd[new Date(y,m,d).getDay()]}</span>
+      <span class="cn">${d}</span>
+      <span class="cd" style="background:${dotBg}"></span>
+    </div>`;
+  }).join('');
+  $('calStrip').querySelectorAll('.cal-cell[data-d]').forEach(el=>el.onclick=()=>{
     selDay = el.dataset.d; renderCalendar(); showDayBills(selDay);
   });
-  $('calHint').textContent = `${y}年${m+1}月 · 点日期看当天账单`;
+  /* 滚动到选中/今天 */
+  const t = $('calStrip').querySelector(selDay ? `[data-d="${selDay}"]` : '.today');
+  if(t) t.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+  $('calHint').textContent = `${y}年${m+1}月`;
 }
 function showDayBills(day){
   const list = applyStatFilter(bills).filter(b=>b.time.slice(0,10)===day).sort((a,b)=>b.time.localeCompare(a.time));

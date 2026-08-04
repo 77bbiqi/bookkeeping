@@ -691,6 +691,10 @@ body{letter-spacing:.2px}
         <div class="plat-row" id="accRow"></div>
         <button class="add-btn" style="margin-top:8px" onclick="showAddDialog('account')">➕ 添加账号</button>
       </div>
+      <div class="form-row" id="syncRow" style="display:none">
+        <label>同步给哪些账号？<span style="font-size:11px; color:var(--muted)">（没勾的账号不同步，金额可各自改）</span></label>
+        <div class="plat-row" id="syncAccs"></div>
+      </div>
       <div class="type-tabs">
         <button class="type-tab on out" data-t="expense">支出</button>
         <button class="type-tab in" data-t="income">收入</button>
@@ -1035,11 +1039,11 @@ function closeConfirm(){ $('confirmMask').classList.remove('show'); }
 function openModal(id){
   editingId = id||null;
   const src = id ? bills.find(b=>b.id===id) : null;
-  draft = src ? {...src} : {type:'expense', amount:'', category:'', note:'', platform:'', account:accounts[0]||'', redpkt:false, pending:false, time:nowLocal()};
+  draft = src ? {...src} : {type:'expense', amount:'', category:'', note:'', platform:'', account:accounts[0]||'', redpkt:false, pending:false, syncTo:accounts.filter(a=>a!==(accounts[0]||'')), time:nowLocal()};
   // 恢复草稿（刷新页面后不丢失已填内容）
   if(!src){
     const saved = localStorage.getItem('bk_draft');
-    if(saved){ try{ const d=JSON.parse(saved); if(d.amount||d.note) draft={...d, account:d.account||accounts[0]||''}; }catch(e){} }
+    if(saved){ try{ const d=JSON.parse(saved); if(d.amount||d.note) draft={...d, account:d.account||accounts[0]||'', syncTo:d.syncTo||accounts.filter(a=>a!==(d.account||accounts[0]||''))}; }catch(e){} }
   }
   $('recordMask').classList.add('show');
   // 新记账：第一步先选渠道；编辑旧账单：直接进表单
@@ -1060,7 +1064,7 @@ function showFormStep(){
   const cur = draft.platform||channels[0]||'其他';
   $('curChanName').textContent = cur;
   $('curChanIco').textContent = chanIcon(cur);
-  renderTypeTabs(); renderAccRow(); renderRedpkt();
+  renderTypeTabs(); renderAccRow(); renderRedpkt(); renderSyncRow();
   // 不自动聚焦/不弹键盘：用户自己点输入框
 }
 function backToChannel(){ showChannelStep(); }
@@ -1077,7 +1081,31 @@ function renderChanGrid(){
 function renderAccRow(){
   $('accRow').innerHTML = accounts.map(a=>
     `<button class="acc-opt ${draft.account===a?'on':''}" data-a="${a}">${a}</button>`).join('');
-  document.querySelectorAll('[data-a]').forEach(el=>el.onclick=()=>{ draft.account=el.dataset.a; renderAccRow(); });
+  document.querySelectorAll('[data-a]').forEach(el=>el.onclick=()=>{
+    draft.account=el.dataset.a;
+    draft.syncTo = accounts.filter(x=>x!==draft.account);
+    renderAccRow(); renderSyncRow();
+  });
+}
+/* 同步目标账号（勾选） */
+function renderSyncRow(){
+  const others = accounts.filter(a=>a!==draft.account);
+  const canSync = draft.type!=='transfer' && !draft.redpkt && others.length>0;
+  $('syncRow').style.display = canSync ? 'block' : 'none';
+  if(canSync){
+    if(!draft.syncTo) draft.syncTo = others.slice();
+    renderSyncAccs();
+  }
+}
+function renderSyncAccs(){
+  const others = accounts.filter(a=>a!==draft.account);
+  $('syncAccs').innerHTML = others.map(a=>
+    `<button class="acc-opt ${draft.syncTo.includes(a)?'on':''}" data-sa="${a}">${a}</button>`).join('');
+  document.querySelectorAll('[data-sa]').forEach(el=>el.onclick=()=>{
+    const a=el.dataset.sa;
+    draft.syncTo.includes(a) ? draft.syncTo=draft.syncTo.filter(x=>x!==a) : draft.syncTo.push(a);
+    renderSyncAccs();
+  });
 }
 function renderRedpkt(){
   if(draft.type!=='income') draft.redpkt=false;
@@ -1124,13 +1152,14 @@ function confirmAdd(){
   }else{
     if(accounts.includes(name)){ toast('这个账号已经有了'); return; }
     accounts.push(name); saveAccs(); renderAccRow(); renderFilterOpts(); renderStatPicks();
+    draft.syncTo = accounts.filter(x=>x!==draft.account); renderSyncRow();
     toast('已添加账号「'+name+'」');
   }
   closeAddDialog();
 }
 
-document.querySelectorAll('.type-tab').forEach(t=>t.onclick=()=>{ draft.type=t.dataset.t; renderTypeTabs(); renderRedpkt(); });
-$('redpktSwitch').onclick=()=>{ draft.redpkt=!draft.redpkt; renderRedpkt(); };
+document.querySelectorAll('.type-tab').forEach(t=>t.onclick=()=>{ draft.type=t.dataset.t; renderTypeTabs(); renderRedpkt(); renderSyncRow(); });
+$('redpktSwitch').onclick=()=>{ draft.redpkt=!draft.redpkt; renderRedpkt(); renderSyncRow(); };
 $('mAmount').addEventListener('input', e=>{ draft.amount=e.target.value; saveDraft(); });
 $('mNote').addEventListener('input', e=>{
   draft.note=e.target.value; saveDraft();
@@ -1163,10 +1192,10 @@ function saveBill(){
     bills = bills.map(b=>b.id===editingId?rec:b);
   }else{
     bills.push(rec);
-    // 跨账号同步：非红包、非转账的新账单，同步到其他账号，金额按源账单计算（各账号可再自行修改）
-    if(rec.type!=='transfer' && !rec.redpkt && accounts.length>1){
-      accounts.filter(a=>a!==rec.account).forEach(a=>{
-        bills.push({...rec, id:uid(), account:a});
+    // 跨账号同步：只同步到表单里勾选的账号，金额按源账单计算（各账号可再自行修改）
+    if(rec.type!=='transfer' && !rec.redpkt && Array.isArray(draft.syncTo)){
+      draft.syncTo.forEach(a=>{
+        if(a && a!==rec.account) bills.push({...rec, id:uid(), account:a});
       });
     }
   }

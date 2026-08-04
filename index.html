@@ -1237,6 +1237,8 @@ function saveBill(){
     }
   }
   save(); closeModal(); renderLedger(); renderFilterOpts();
+  /* 保存后立刻刷新当前页面：若正在统计页则重刷统计，避免要手动刷新才看到新数据 */
+  if($('page-stats').classList.contains('show')) renderStats();
   toast(editingId?'已保存修改 ✨':'记好啦 🎉');
   showLoading('正在记入账本...', 500);
 }

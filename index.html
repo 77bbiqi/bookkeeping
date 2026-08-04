@@ -129,7 +129,7 @@ input,select{font-family:inherit; color:inherit}
   background:var(--surface); backdrop-filter:blur(14px);
   border-radius:14px; margin-bottom:0; box-shadow:var(--shadow);
 }
-.filter-panel.open{max-height:340px; margin-bottom:12px}
+.filter-panel.open{max-height:560px; margin-bottom:12px}
 .fp-inner{padding:14px 16px; display:flex; flex-direction:column; gap:12px}
 .fp-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
 .fp-label{font-size:13px; color:var(--muted); width:56px}
@@ -405,6 +405,72 @@ body{letter-spacing:.2px}
   font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:opacity .3s, bottom .3s;
 }
 .toast.show{opacity:1; bottom:130px}
+
+/* ============ 记账：渠道选择 / 账号 / 步骤 ============ */
+.st-label{font-size:14px; color:var(--muted); margin-bottom:12px; font-weight:600}
+.chan-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:12px}
+.chan-cell{
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+  padding:14px 6px; border-radius:16px; background:var(--surface-2);
+  font-size:13px; font-weight:700; color:var(--text); border:2px solid transparent; transition:all .15s;
+}
+.chan-cell:active{transform:scale(.96)}
+.chan-cell .cc{width:40px; height:40px; border-radius:12px; display:grid; place-items:center; font-size:20px; color:#fff}
+.chan-cell .cc.plus{background:linear-gradient(135deg,#f472b6,#8b5cf6)}
+.add-btn{
+  width:100%; padding:12px; border-radius:14px; font-weight:700; font-size:14px;
+  background:var(--surface-2); color:var(--muted); border:1px dashed var(--line);
+}
+.add-btn:active{background:var(--surface)}
+.sel-badge{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  background:var(--surface-2); border-radius:14px; padding:10px 14px; margin-bottom:12px; font-weight:800;
+}
+.sel-badge .sb-ico{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:15px;color:#fff}
+.sel-badge .chg{font-size:12px; color:var(--muted); font-weight:600; padding:6px 10px; border-radius:9px; background:var(--surface)}
+.sel-badge .chg:active{background:var(--surface-2)}
+.acc-opt{padding:8px 14px; border-radius:10px; font-size:13px; font-weight:700; background:var(--surface-2); color:var(--muted)}
+.acc-opt.on{background:linear-gradient(135deg,#f472b6,#8b5cf6); color:#fff}
+/* 待补金额 */
+.bill-item.pending{opacity:.88}
+.pending-tag{font-size:10px; font-weight:800; padding:1px 6px; border-radius:5px; background:rgba(234,179,8,.18); color:#d97706}
+/* 统计筛选 */
+.stat-filter{display:flex; gap:8px; flex-wrap:wrap; margin:12px 0}
+/* 渠道统计表 */
+.chan-table{width:100%; border-collapse:collapse; font-size:13px}
+.chan-table th{text-align:left; color:var(--muted); font-weight:600; padding:8px 6px; border-bottom:1px solid var(--line)}
+.chan-table td{padding:9px 6px; border-bottom:1px solid var(--line); font-variant-numeric:tabular-nums}
+.chan-table tr:last-child td{border-bottom:none}
+.chan-table .num{font-weight:800}
+.chan-table .num.in{color:var(--ok)}
+.chan-table .num.out{color:var(--danger)}
+.chan-table .dot{display:inline-block; width:9px; height:9px; border-radius:3px; margin-right:6px}
+/* 日历 */
+.cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:4px}
+.cal-wd{text-align:center; font-size:11px; color:var(--muted); font-weight:600; padding:4px 0}
+.cal-day{
+  border-radius:12px; padding:5px 2px 4px; text-align:center; min-height:52px;
+  background:var(--surface-2); cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:2px;
+}
+.cal-day:active{transform:scale(.95)}
+.cal-day .n{font-size:12px; font-weight:800; color:var(--text)}
+.cal-day .vin{font-size:9.5px; color:var(--ok); font-weight:700; white-space:nowrap}
+.cal-day .vout{font-size:9.5px; color:var(--danger); font-weight:700; white-space:nowrap}
+.cal-day.today{border:1.5px solid #8b5cf6}
+.cal-day.blank{background:transparent; cursor:default}
+.cal-day.sel{background:rgba(167,139,250,.3)}
+/* 红包目标 */
+.goal-item{display:flex; align-items:center; gap:10px; padding:10px 4px; border-bottom:1px solid var(--line)}
+.goal-item:last-child{border-bottom:none}
+.goal-item .g-name{flex:1; font-weight:800; font-size:14px; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.goal-item .g-bar{flex:1.2; min-width:110px}
+.goal-bar{height:8px; border-radius:999px; background:var(--surface-2); overflow:hidden}
+.goal-bar i{display:block; height:100%; border-radius:999px; background:linear-gradient(90deg,#f472b6,#8b5cf6)}
+.goal-item .g-info{font-size:11px; color:var(--muted); text-align:right; line-height:1.5}
+.goal-item .g-info b{color:var(--text); font-size:12px}
+.goal-del{font-size:16px; color:var(--muted); padding:4px}
+#addInput{width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--line); background:var(--surface-2); font-size:15px; outline:none; margin-bottom:16px}
+#addInput:focus{border-color:#8b5cf6}
 </style>
 </head>
 <body>
@@ -495,6 +561,14 @@ body{letter-spacing:.2px}
             <div class="fp-label">分类</div>
             <div class="fp-chips" id="fCats"></div>
           </div>
+          <div class="fp-row">
+            <div class="fp-label">账号</div>
+            <div class="fp-chips" id="fAccs"></div>
+          </div>
+          <div class="fp-row">
+            <div class="fp-label">渠道</div>
+            <div class="fp-chips" id="fChans"></div>
+          </div>
         </div>
       </div>
 
@@ -515,6 +589,13 @@ body{letter-spacing:.2px}
 
     <!-- ======= 统计页 ======= -->
     <section id="page-stats" class="page">
+      <div class="period-row">
+        <button class="period-btn" data-p="day">本日</button>
+        <button class="period-btn" data-p="week">本周</button>
+        <button class="period-btn on" data-p="month">本月</button>
+        <button class="period-btn" data-p="year">本年</button>
+      </div>
+      <div class="stat-filter" id="statFilter"></div>
       <div class="overview">
         <div class="label" id="stRange">本月统计</div>
         <div style="display:flex; gap:10px">
@@ -523,18 +604,30 @@ body{letter-spacing:.2px}
           <div style="flex:1"><div class="ov-big gray" style="font-size:20px" id="stBalance">¥0.00</div><div class="label">结余</div></div>
         </div>
       </div>
-      <div class="period-row">
-        <button class="period-btn" data-p="week">本周</button>
-        <button class="period-btn on" data-p="month">本月</button>
-        <button class="period-btn" data-p="year">本年</button>
+      <div class="card">
+        <h3>💰 攒的红包 <span style="float:right; font-size:12px" id="redpktHint"></span></h3>
+        <div class="ov-big" style="font-size:24px" id="redpktTotal">¥0.00</div>
+      </div>
+      <div class="card">
+        <h3>各渠道 / 直播间 收支</h3>
+        <div id="chanStats"></div>
+      </div>
+      <div class="card">
+        <h3>📅 本月日历 <span style="float:right; font-size:12px; color:var(--muted)" id="calHint"></span></h3>
+        <div id="calGrid"></div>
+      </div>
+      <div class="card stats-link" id="dayBillsWrap" style="display:none">
+        <div class="st-title" id="dayBillsTitle"></div>
+        <div id="dayBills"></div>
+      </div>
+      <div class="card">
+        <h3>🎯 红包购物目标 <span style="float:right; font-size:12px; color:var(--muted)">还差多少红包能买</span></h3>
+        <div id="goalList"></div>
+        <button class="add-btn" onclick="showGoalDialog()">➕ 设置 / 修改目标</button>
       </div>
       <div class="card">
         <h3>支出分类排行</h3>
         <div class="chart-wrap"><canvas id="pieChart"></canvas></div>
-      </div>
-      <div class="card">
-        <h3 id="trendTitle">近 30 天收支趋势</h3>
-        <div class="chart-wrap small"><canvas id="lineChart"></canvas></div>
       </div>
       <div class="card stats-link" id="catBillsWrap" style="display:none">
         <div class="st-title" id="catBillsTitle"></div>
@@ -596,29 +689,68 @@ body{letter-spacing:.2px}
 <div class="mask" id="recordMask">
   <div class="modal">
     <h2>记一笔 <button onclick="closeModal()" style="font-size:18px; color:var(--muted)">✕</button></h2>
-    <div class="type-tabs">
-      <button class="type-tab on out" data-t="expense">支出</button>
-      <button class="type-tab in" data-t="income">收入</button>
-      <button class="type-tab tr" data-t="transfer">转账</button>
+
+    <!-- 步骤1：选择渠道 / 直播间 -->
+    <div id="stepChannel">
+      <div class="st-label">买在哪个渠道 / 直播间？</div>
+      <div class="chan-grid" id="chanGrid"></div>
+      <button class="add-btn" onclick="showAddDialog('channel')">➕ 添加渠道 / 直播间</button>
+      <div class="modal-btns">
+        <button class="btn-cancel" onclick="closeModal()">取消</button>
+      </div>
     </div>
-    <input id="mAmount" class="fmt-amount" type="number" step="0.01" min="0" placeholder="0.00">
-    <div class="fmt-label" id="mFmtLabel">输入金额 · 自动千位分隔：10000 → 10,000.00</div>
-    <div class="cat-grid" id="catGrid"></div>
-    <div class="form-row">
-      <label>备注（可识别平台，如"京东买的卫衣"）</label>
-      <input type="text" id="mNote" placeholder="写点什么..." autocomplete="off">
+
+    <!-- 步骤2：填写账单 -->
+    <div id="stepForm" style="display:none">
+      <div class="sel-badge">
+        <span style="display:flex;align-items:center;gap:8px"><span class="sb-ico" id="curChanIco">🛒</span><span id="curChanName"></span></span>
+        <button class="chg" onclick="backToChannel()">更换</button>
+      </div>
+      <div class="form-row">
+        <label>用哪个账号买的？</label>
+        <div class="plat-row" id="accRow"></div>
+        <button class="add-btn" style="margin-top:8px" onclick="showAddDialog('account')">➕ 添加账号</button>
+      </div>
+      <div class="type-tabs">
+        <button class="type-tab on out" data-t="expense">支出</button>
+        <button class="type-tab in" data-t="income">收入</button>
+        <button class="type-tab tr" data-t="transfer">转账</button>
+      </div>
+      <input id="mAmount" class="fmt-amount" type="number" step="0.01" min="0" placeholder="0.00">
+      <div class="fmt-label" id="mFmtLabel">输入金额 · 自动千位分隔：10000 → 10,000.00</div>
+      <div class="cat-grid" id="catGrid"></div>
+      <div class="form-row" id="redpktRow" style="display:none">
+        <label style="display:flex;align-items:center;gap:10px">💰 这是领的红包？ <button class="switch" id="redpktSwitch"></button></label>
+        <div style="font-size:12px; color:var(--muted); margin-top:6px">勾上后计入收入，并单独累计成「攒的红包」</div>
+      </div>
+      <div class="form-row">
+        <label>备注（可识别渠道，如"XX直播间买的卫衣"）</label>
+        <input type="text" id="mNote" placeholder="写点什么..." autocomplete="off">
+      </div>
+      <div class="form-row">
+        <label>时间</label>
+        <input type="datetime-local" id="mTime">
+      </div>
+      <div class="modal-btns">
+        <button class="btn-cancel" onclick="closeModal()">取消</button>
+        <button class="btn-confirm" onclick="saveBill()">确认</button>
+      </div>
     </div>
-    <div class="form-row">
-      <label>平台（自动识别，可手动改）</label>
-      <div class="plat-row" id="platRow"></div>
+  </div>
+</div>
+
+<!-- ======= 添加渠道 / 账号 / 目标 输入框 ======= -->
+<div class="mask confirm-mask" id="addMask">
+  <div class="confirm-modal">
+    <div class="t" id="addTitle">添加渠道</div>
+    <div class="d" id="addDesc"></div>
+    <div class="fp-row" id="goalChanWrap" style="display:none; margin-bottom:10px">
+      <div class="fp-chips" id="goalChanChips"></div>
     </div>
-    <div class="form-row">
-      <label>时间</label>
-      <input type="datetime-local" id="mTime">
-    </div>
+    <input type="text" id="addInput" placeholder="输入名称..." autocomplete="off">
     <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal()">取消</button>
-      <button class="btn-confirm" onclick="saveBill()">确认</button>
+      <button class="btn-cancel" onclick="closeAddDialog()">取消</button>
+      <button class="btn-confirm" id="addOkBtn" onclick="confirmAdd()">添加</button>
     </div>
   </div>
 </div>
@@ -669,6 +801,8 @@ const PLATFORMS = {
   京东:'#e1251b', 淘宝:'#ff5000', 天猫:'#ff0036', 拼多多:'#e02e24', 美团:'#f59e0b',
   饿了么:'#0085ff', 抖音:'#111827', 微信:'#07c160', 支付宝:'#1677ff', 滴滴:'#00a1ff', 线下:'#64748b', 其他:'#64748b'
 };
+/* 自定义渠道/直播间的配色（按顺序轮换） */
+const CHAN_PALETTE = ['#e11d48','#f59e0b','#10b981','#0ea5e9','#8b5cf6','#ec4899','#ef4444','#14b8a6','#f97316','#6366f1'];
 const THEMES = [
   {name:'烟粉', css:'linear-gradient(160deg,#f2cfdb,#dfa3bf)'},
   {name:'雾紫', css:'linear-gradient(160deg,#cfc8f0,#a292d8)'},
@@ -683,12 +817,27 @@ const PLAT_RE = /京东|淘宝|天猫|拼多多|美团|饿了么|抖音|微信|�
 
 /* ============ 状态 ============ */
 let bills = [];
+let channels = ['京东','淘宝'];   // 渠道/直播间（可自添加）
+let accounts = ['默认'];          // 账号（可自定义命名）
+let goals = {};                   // 渠道 -> 目标价（红包购物目标）
 let settings = {theme:1, mode:'light'};
 let editingId = null;
 let selected = new Set();
 let draft = null;
-const filter = {t:'expense', cat:'', start:'', end:'', keyword:''};
-let pieChart=null, lineChart=null;
+let addKind = null;               // channel / account / goal
+let goalEditChan = '';
+let selDay = '';
+let statFilterVal = 'all';        // all = 所有平台+所有账号
+const filter = {t:'expense', cat:'', start:'', end:'', keyword:'', acc:'', chan:''};
+let pieChart=null;
+
+/* 渠道/直播间的图标（统一购物车，后续可细化） */
+function chanIcon(c){ return '🛒'; }
+function chanColor(name){
+  if(PLATFORMS[name]) return PLATFORMS[name];
+  const i = channels.indexOf(name);
+  return CHAN_PALETTE[Math.max(i,0) % CHAN_PALETTE.length];
+}
 
 const $ = id => document.getElementById(id);
 const fmtMoney = n => '¥ ' + n.toLocaleString('zh-CN',{minimumFractionDigits:2, maximumFractionDigits:2});
@@ -699,13 +848,23 @@ const load = () => {
   try{
     bills = JSON.parse(localStorage.getItem('bk_bills')) || [];
     settings = Object.assign({theme:1, mode:'light'}, JSON.parse(localStorage.getItem('bk_settings')));
-  }catch(e){ bills=[]; settings={theme:1, mode:'light'}; }
+    channels = JSON.parse(localStorage.getItem('bk_channels')) || ['京东','淘宝'];
+    accounts = JSON.parse(localStorage.getItem('bk_accounts')) || ['默认'];
+    goals = JSON.parse(localStorage.getItem('bk_goals')) || {};
+    /* 旧数据兼容：给没有账号的账单补默认账号 */
+    bills.forEach(b=>{ if(b.account===undefined) b.account='默认'; });
+  }catch(e){ bills=[]; settings={theme:1, mode:'light'}; channels=['京东','淘宝']; accounts=['默认']; goals={}; }
 };
 const save = () => { localStorage.setItem('bk_bills', JSON.stringify(bills)); };
+const saveChans = () => { localStorage.setItem('bk_channels', JSON.stringify(channels)); };
+const saveAccs  = () => { localStorage.setItem('bk_accounts', JSON.stringify(accounts)); };
+const saveGoals = () => { localStorage.setItem('bk_goals', JSON.stringify(goals)); };
 
-/* ============ 工具：平台识别 ============ */
+/* ============ 工具：渠道识别 ============ */
 function detectPlatform(text){
   if(!text) return '';
+  /* 先匹配用户自定义的渠道/直播间名（如直播间名） */
+  for(const c of channels){ if(text.includes(c)) return c; }
   const m = text.match(PLAT_RE);
   return m ? m[0] : '';
 }
@@ -763,6 +922,8 @@ function filterBills(){
   }
   if(filter.t!=='all') list = list.filter(b=>b.type===filter.t);
   if(filter.cat) list = list.filter(b=>b.category===filter.cat);
+  if(filter.acc) list = list.filter(b=>b.account===filter.acc);
+  if(filter.chan) list = list.filter(b=>b.platform===filter.chan);
   if(filter.start) list = list.filter(b=>b.time.slice(0,10)>=filter.start);
   if(filter.end) list = list.filter(b=>b.time.slice(0,10)<=filter.end);
   return list.sort((a,b)=> b.time.localeCompare(a.time) || b.id.localeCompare(a.id));
@@ -815,16 +976,18 @@ function billHTML(b){
   const cat = CATS[b.category]||CATS['其他'];
   const amtCls = b.type==='income'?'in':(b.type==='expense'?'out':'tr');
   const sign = b.type==='expense'?'-':(b.type==='income'?'+':'');
-  const plat = b.platform?`<span class="plat-badge" style="background:${PLATFORMS[b.platform]||'#64748b'}">${b.platform}</span>`:'';
+  const plat = b.platform?`<span class="plat-badge" style="background:${chanColor(b.platform)}">${b.platform}</span>`:'';
+  const acc = b.account?`<span class="plat-badge" style="background:#64748b">👤 ${b.account}</span>`:'';
+  const pend = b.pending?`<span class="pending-tag">待补金额</span>`:'';
   const note = b.note||b.category;
-  return `<div class="bill-item ${selected.has(b.id)?'cb-on':''}" data-id="${b.id}">
+  return `<div class="bill-item ${selected.has(b.id)?'cb-on':''} ${b.pending?'pending':''}" data-id="${b.id}">
     <div class="cb ${selected.has(b.id)?'on':''}"></div>
     <div class="cat-ico" style="background:${cat.c}22">${cat.ico}</div>
     <div class="mid">
       <div class="note">${note}</div>
-      <div class="meta">${plat}${plat?' · ':''}${b.category} · ${b.time.slice(5,16)}</div>
+      <div class="meta">${plat}${acc}${pend}${b.category} · ${b.time.slice(5,16)}</div>
     </div>
-    <div class="amt ${amtCls}">${sign}${fmtMoney(b.amount)}</div>
+    <div class="amt ${amtCls}">${b.pending?'待补':sign+fmtMoney(b.amount)}</div>
   </div>`;
 }
 function batchMode(){ return $('batchBar').classList.contains('show'); }
@@ -894,25 +1057,57 @@ function catGridHTML(){
     <button class="cat-cell ${draft&&draft.category===k?'on':''}" data-cat="${k}">
       <span class="ci">${v.ico}</span>${k}</button>`).join('');
 }
-function platRowHTML(){
-  return ['京东','淘宝','天猫','拼多多','美团','饿了么','抖音','微信','支付宝','滴滴','线下','其他']
-    .map(p=>`<button class="plat-opt ${draft&&draft.platform===p?'on':''}" data-p="${p}">${p}</button>`).join('');
-}
 function openModal(id){
   editingId = id||null;
   const src = id ? bills.find(b=>b.id===id) : null;
-  draft = src ? {...src} : {type:'expense', amount:'', category:'餐饮', note:'', platform:'', time:nowLocal()};
+  draft = src ? {...src} : {type:'expense', amount:'', category:'餐饮', note:'', platform:'', account:accounts[0]||'默认', redpkt:false, pending:false, time:nowLocal()};
   // 恢复草稿（刷新页面后不丢失已填内容）
   if(!src){
     const saved = localStorage.getItem('bk_draft');
-    if(saved){ try{ const d=JSON.parse(saved); if(d.amount||d.note) draft={...d}; }catch(e){} }
+    if(saved){ try{ const d=JSON.parse(saved); if(d.amount||d.note) draft={...d, account:d.account||accounts[0]||'默认'}; }catch(e){} }
   }
+  $('recordMask').classList.add('show');
+  // 新记账：第一步先选渠道；编辑旧账单：直接进表单
+  if(editingId || draft.platform) showFormStep();
+  else showChannelStep();
+}
+function showChannelStep(){
+  $('stepChannel').style.display='block';
+  $('stepForm').style.display='none';
+  renderChanGrid();
+}
+function showFormStep(){
+  $('stepChannel').style.display='none';
+  $('stepForm').style.display='block';
   $('mAmount').value = draft.amount!==''?draft.amount:'';
   $('mNote').value = draft.note||'';
   $('mTime').value = draft.time||nowLocal();
-  renderTypeTabs(); renderCatGrid(); renderPlatRow();
-  $('recordMask').classList.add('show');
-  setTimeout(()=>$('mAmount').focus(), 300);
+  const cur = draft.platform||channels[0]||'其他';
+  $('curChanName').textContent = cur;
+  $('curChanIco').textContent = chanIcon(cur);
+  renderTypeTabs(); renderCatGrid(); renderAccRow(); renderRedpkt();
+  // 不自动聚焦/不弹键盘：用户自己点输入框
+}
+function backToChannel(){ showChannelStep(); }
+function renderChanGrid(){
+  $('chanGrid').innerHTML = channels.map(c=>`
+    <button class="chan-cell" data-chan="${c}">
+      <span class="cc" style="background:${chanColor(c)}">${chanIcon(c)}</span>${c}</button>`).join('') +
+    `<button class="chan-cell" onclick="showAddDialog('channel')">
+      <span class="cc plus">＋</span>添加渠道</button>`;
+  document.querySelectorAll('.chan-cell[data-chan]').forEach(el=>el.onclick=()=>{
+    draft.platform = el.dataset.chan; showFormStep();
+  });
+}
+function renderAccRow(){
+  $('accRow').innerHTML = accounts.map(a=>
+    `<button class="acc-opt ${draft.account===a?'on':''}" data-a="${a}">${a}</button>`).join('');
+  document.querySelectorAll('[data-a]').forEach(el=>el.onclick=()=>{ draft.account=el.dataset.a; renderAccRow(); });
+}
+function renderRedpkt(){
+  if(draft.type!=='income') draft.redpkt=false;
+  $('redpktRow').style.display = draft.type==='income' ? 'block' : 'none';
+  $('redpktSwitch').classList.toggle('on', !!draft.redpkt);
 }
 function nowLocal(){
   const d=new Date(); const p=x=>String(x).padStart(2,'0');
@@ -926,22 +1121,71 @@ function renderTypeTabs(){
   });
 }
 function renderCatGrid(){ $('catGrid').innerHTML = catGridHTML(); bindCat(); }
-function renderPlatRow(){ $('platRow').innerHTML = platRowHTML(); bindPlat(); }
 function bindCat(){
   document.querySelectorAll('[data-cat]').forEach(el=>el.onclick=()=>{ draft.category=el.dataset.cat; renderCatGrid(); });
 }
-function bindPlat(){
-  document.querySelectorAll('[data-p]').forEach(el=>el.onclick=()=>{ draft.platform=el.dataset.p; renderPlatRow(); });
-}
-function bindPlatRow(){ /* for auto-detect update */ }
 
-document.querySelectorAll('.type-tab').forEach(t=>t.onclick=()=>{ draft.type=t.dataset.t; renderTypeTabs(); });
+/* 添加渠道 / 账号 / 目标 输入弹窗 */
+function showAddDialog(kind){
+  addKind=kind;
+  $('goalChanWrap').style.display = kind==='goal' ? 'flex' : 'none';
+  if(kind==='channel'){
+    $('addTitle').textContent='添加渠道 / 直播间';
+    $('addDesc').textContent='输入渠道或直播间的名字（比如直播间的名字）';
+    $('addInput').placeholder='输入名称，如"XX甄选直播间"';
+    $('addInput').value='';
+  }else if(kind==='account'){
+    $('addTitle').textContent='添加账号';
+    $('addDesc').textContent='输入账号的名字，比如"手机1""支付宝"';
+    $('addInput').placeholder='输入名称，如"手机1"';
+    $('addInput').value='';
+  }else{
+    $('addTitle').textContent='🎯 设置红包购物目标';
+    $('addDesc').textContent='先选直播间渠道，再输入想买商品的价格';
+    goalEditChan = Object.keys(goals)[0] || channels[0];
+    renderGoalChanChips();
+    $('addInput').placeholder='目标价格，如 199.00';
+    $('addInput').value = (goalEditChan && goals[goalEditChan]) ? goals[goalEditChan] : '';
+  }
+  $('addMask').classList.add('show');
+  setTimeout(()=>$('addInput').focus(), 250);
+}
+function renderGoalChanChips(){
+  $('goalChanChips').innerHTML = channels.map(c=>`<button class="chip ${c===goalEditChan?'on':''}" data-gc="${c}">${c}</button>`).join('');
+  document.querySelectorAll('[data-gc]').forEach(el=>el.onclick=()=>{ goalEditChan=el.dataset.gc; $('addInput').value = goals[goalEditChan]||''; renderGoalChanChips(); });
+}
+function closeAddDialog(){ $('addMask').classList.remove('show'); addKind=null; }
+function confirmAdd(){
+  const name = $('addInput').value.trim();
+  if(addKind==='goal'){
+    const amt = parseFloat(name);
+    if(!goalEditChan || !amt || amt<=0){ toast('请输入正确的目标价格'); return; }
+    goals[goalEditChan]=Math.round(amt*100)/100; saveGoals();
+    closeAddDialog(); renderGoals(); toast('已设置目标 🎯');
+    return;
+  }
+  if(!name){ toast('请输入名称'); return; }
+  if(addKind==='channel'){
+    if(channels.includes(name)){ toast('这个渠道已经有了'); return; }
+    channels.push(name); saveChans(); renderChanGrid(); renderFilterOpts(); renderStatFilter();
+    draft.platform = name; showFormStep();
+    toast('已添加渠道「'+name+'」');
+  }else{
+    if(accounts.includes(name)){ toast('这个账号已经有了'); return; }
+    accounts.push(name); saveAccs(); renderAccRow(); renderFilterOpts(); renderStatFilter();
+    toast('已添加账号「'+name+'」');
+  }
+  closeAddDialog();
+}
+
+document.querySelectorAll('.type-tab').forEach(t=>t.onclick=()=>{ draft.type=t.dataset.t; renderTypeTabs(); renderRedpkt(); });
+$('redpktSwitch').onclick=()=>{ draft.redpkt=!draft.redpkt; renderRedpkt(); };
 $('mAmount').addEventListener('input', e=>{ draft.amount=e.target.value; saveDraft(); });
 $('mNote').addEventListener('input', e=>{
   draft.note=e.target.value; saveDraft();
-  // 自动识别平台 + 千位提示
+  // 自动识别渠道 + 千位提示
   const p = detectPlatform(draft.note);
-  if(p && draft.platform!==p){ draft.platform=p; renderPlatRow(); }
+  if(p && draft.platform!==p){ draft.platform=p; $('curChanName').textContent=p; $('curChanIco').textContent=chanIcon(p); }
   $('mFmtLabel').textContent = draft.amount ? `当前：${fmtMoney(parseFloat(draft.amount)||0)}` : '输入金额 · 自动千位分隔：10000 → 10,000.00';
 });
 $('mTime').addEventListener('input', e=>{ draft.time=e.target.value; saveDraft(); });
@@ -950,19 +1194,31 @@ function clearDraft(){ if(!editingId) localStorage.removeItem('bk_draft'); }
 function closeModal(){ $('recordMask').classList.remove('show'); editingId=null; draft=null; clearDraft(); }
 function saveBill(){
   const amt = parseFloat(draft.amount);
-  if(!amt || amt<=0){ toast('请输入金额'); $('mAmount').focus(); return; }
+  if(!amt || amt<=0){ toast('请输入金额'); return; }
   const rec = {
     id: editingId||uid(),
     type: draft.type,
     amount: Math.round(amt*100)/100,
     category: draft.category||'其他',
     note: draft.note||'',
-    platform: draft.platform||detectPlatform(draft.note)||'其他',
+    platform: draft.platform||detectPlatform(draft.note)||(channels[0]||'其他'),
+    account: draft.account||accounts[0]||'默认',
+    redpkt: !!draft.redpkt,
+    pending: false,
     time: draft.time||nowLocal()
   };
-  if(editingId) bills = bills.map(b=>b.id===editingId?rec:b);
-  else bills.push(rec);
-  save(); closeModal(); renderLedger();
+  if(editingId){
+    bills = bills.map(b=>b.id===editingId?rec:b);
+  }else{
+    bills.push(rec);
+    // 跨账号同步：非红包、非转账的新账单，把信息同步到其他账号（金额留空待补）
+    if(rec.type!=='transfer' && !rec.redpkt && accounts.length>1){
+      accounts.filter(a=>a!==rec.account).forEach(a=>{
+        bills.push({...rec, id:uid(), account:a, amount:0, pending:true});
+      });
+    }
+  }
+  save(); closeModal(); renderLedger(); renderFilterOpts();
   toast(editingId?'已保存修改 ✨':'记好啦 🎉');
   showLoading('正在记入账本...', 500);
 }
@@ -985,6 +1241,20 @@ function renderFilterCats(){
   document.querySelectorAll('[data-fc]').forEach(el=>el.onclick=()=>{
     document.querySelectorAll('[data-fc]').forEach(x=>x.classList.remove('on'));
     el.classList.add('on'); filter.cat=el.dataset.fc; renderLedger();
+  });
+}
+function renderFilterOpts(){ /* 账号 & 渠道筛选 chips */
+  $('fAccs').innerHTML = '<button class="chip on" data-fa="">全部账号</button>' +
+    accounts.map(a=>`<button class="chip" data-fa="${a}">👤 ${a}</button>`).join('');
+  document.querySelectorAll('[data-fa]').forEach(el=>el.onclick=()=>{
+    document.querySelectorAll('[data-fa]').forEach(x=>x.classList.remove('on'));
+    el.classList.add('on'); filter.acc=el.dataset.fa; renderLedger();
+  });
+  $('fChans').innerHTML = '<button class="chip on" data-fc2="">全部渠道</button>' +
+    channels.map(c=>`<button class="chip" data-fc2="${c}">📺 ${c}</button>`).join('');
+  document.querySelectorAll('[data-fc2]').forEach(el=>el.onclick=()=>{
+    document.querySelectorAll('[data-fc2]').forEach(x=>x.classList.remove('on'));
+    el.classList.add('on'); filter.chan=el.dataset.fc2; renderLedger();
   });
 }
 
@@ -1011,7 +1281,7 @@ function downloadJSON(data, name){
 }
 function exportAll(){
   showLoading('正在打包备份...', 600);
-  setTimeout(()=>downloadJSON({app:'77-bookkeeping', exportAt:new Date().toISOString(), bills}), 400);
+  setTimeout(()=>downloadJSON({app:'77-bookkeeping', exportAt:new Date().toISOString(), bills, channels, accounts, goals}), 400);
   toast('备份已导出 📤');
 }
 function importFromFile(file){
@@ -1020,8 +1290,13 @@ function importFromFile(file){
     try{
       const data = JSON.parse(r.result);
       const list = Array.isArray(data) ? data : (data.bills||[]);
-      bills = list.filter(b=>b.amount&&b.type).map(b=>({id:b.id||uid(), type:b.type, amount:+b.amount, category:b.category||'其他', note:b.note||'', platform:b.platform||'其他', time:b.time||nowLocal()}));
-      save(); renderLedger(); renderFilterCats(); toast(`导入成功，共 ${bills.length} 条 🎉`);
+      bills = list.filter(b=>b.type).map(b=>({id:b.id||uid(), type:b.type, amount:+b.amount||0, category:b.category||'其他', note:b.note||'', platform:b.platform||'其他', account:b.account||'默认', redpkt:!!b.redpkt, pending:!!b.pending, time:b.time||nowLocal()}));
+      if(data.channels && Array.isArray(data.channels)) channels = data.channels;
+      if(data.accounts && Array.isArray(data.accounts)) accounts = data.accounts;
+      if(data.goals && typeof data.goals==='object') goals = data.goals;
+      saveChans(); saveAccs(); saveGoals();
+      save(); renderLedger(); renderFilterCats(); renderFilterOpts(); renderStatFilter();
+      toast(`导入成功，共 ${bills.length} 条 🎉`);
     }catch(e){ toast('文件格式不对哦'); }
   };
   r.readAsText(file);
@@ -1041,7 +1316,9 @@ document.querySelectorAll('.period-btn').forEach(b=>b.onclick=()=>{
 });
 function periodRange(){
   const now=new Date();
-  if(period==='week'){
+  if(period==='day'){
+    return {label:'本日', start:iso(new Date()), end:now};
+  }else if(period==='week'){
     const d=new Date(now); d.setDate(d.getDate()-((d.getDay()+6)%7));
     return {label:'本周', start:iso(d), end:now};
   }else if(period==='month'){
@@ -1055,14 +1332,116 @@ function renderStats(){
   showLoading('正在生成统计...', 600);
   const {label,start,end} = periodRange();
   $('stRange').textContent = label+'统计';
-  const list = bills.filter(b=>b.time.slice(0,10)>=start&&b.time.slice(0,10)<=iso(end));
+  const endIso = iso(end);
+  const periodBills = bills.filter(b=>b.time.slice(0,10)>=start&&b.time.slice(0,10)<=endIso);
+  const list = applyStatFilter(periodBills);
   const inc = list.filter(b=>b.type==='income').reduce((s,b)=>s+b.amount,0);
   const out = list.filter(b=>b.type==='expense').reduce((s,b)=>s+b.amount,0);
   $('stIn').textContent='+'+fmtMoney(inc);
   $('stOut').textContent='-'+fmtMoney(out);
   $('stBalance').textContent=fmtMoney(inc-out);
-  renderPie(list); renderLine();
+  renderRedpktTotal(); renderChanStats(list); renderCalendar(); renderGoals(); renderPie(list);
 }
+function renderStatFilter(){
+  const items = [{v:'all', t:'🌐 所有平台+所有账号'}];
+  channels.forEach(c=>items.push({v:'c:'+c, t:'📺 '+c}));
+  accounts.forEach(a=>items.push({v:'a:'+a, t:'👤 '+a}));
+  $('statFilter').innerHTML = items.map(it=>`<button class="chip ${statFilterVal===it.v?'on':''}" data-sf="${it.v}">${it.t}</button>`).join('');
+  document.querySelectorAll('[data-sf]').forEach(el=>el.onclick=()=>{ statFilterVal=el.dataset.sf; renderStats(); });
+}
+function applyStatFilter(list){
+  if(statFilterVal==='all') return list;
+  if(statFilterVal.startsWith('c:')) return list.filter(b=>b.platform===statFilterVal.slice(2));
+  return list.filter(b=>b.account===statFilterVal.slice(2));
+}
+function renderRedpktTotal(){
+  const {label} = periodRange();
+  const endIso = iso(new Date());
+  const pStart = periodRange().start;
+  const periodRed = applyStatFilter(bills).filter(b=>b.redpkt && b.time.slice(0,10)>=pStart && b.time.slice(0,10)<=endIso).reduce((s,b)=>s+b.amount,0);
+  const allRed = applyStatFilter(bills).filter(b=>b.redpkt).reduce((s,b)=>s+b.amount,0);
+  $('redpktTotal').textContent = fmtMoney(allRed);
+  $('redpktHint').textContent = '累计攒 · 本'+label+'领 '+fmtMoney(periodRed);
+}
+function renderChanStats(list){
+  const filteredAll = applyStatFilter(bills); // 全部时间，按当前渠道/账号筛选
+  const only = statFilterVal.startsWith('c:') ? statFilterVal.slice(2) : null;
+  const rows = channels.map(c=>{
+    if(only && c!==only) return null;
+    const bs = list.filter(b=>b.platform===c);
+    const inc = bs.filter(b=>b.type==='income').reduce((s,b)=>s+b.amount,0);
+    const out = bs.filter(b=>b.type==='expense').reduce((s,b)=>s+b.amount,0);
+    const rp = filteredAll.filter(b=>b.redpkt && b.platform===c).reduce((s,b)=>s+b.amount,0);
+    return {c, inc, out, rp, has: bs.length>0};
+  }).filter(Boolean).filter(r=>r.has || r.rp>0);
+  if(!rows.length){ $('chanStats').innerHTML='<div class="empty" style="padding:20px">本期还没有渠道记录</div>'; return; }
+  $('chanStats').innerHTML = `<table class="chan-table">
+    <tr><th>渠道</th><th>收入</th><th>支出</th><th>累计红包</th></tr>
+    ${rows.map(r=>`<tr>
+      <td><span class="dot" style="background:${chanColor(r.c)}"></span>${r.c}</td>
+      <td class="num in">${fmtMoney(r.inc)}</td>
+      <td class="num out">${fmtMoney(r.out)}</td>
+      <td class="num">${r.rp?fmtMoney(r.rp):'—'}</td>
+    </tr>`).join('')}
+  </table>`;
+}
+function shortMoney(n){
+  if(n>=10000) return (n/10000).toFixed(1)+'w';
+  if(n>=1000) return (n/1000).toFixed(1)+'k';
+  return String(Math.round(n));
+}
+function renderCalendar(){
+  const now = new Date();
+  const y = now.getFullYear(), m = now.getMonth();
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  const firstWd = new Date(y, m, 1).getDay();
+  const todayIso = iso(now);
+  const filtered = applyStatFilter(bills);
+  const cells = ['日','一','二','三','四','五','六'].map(w=>`<div class="cal-wd">${w}</div>`);
+  for(let i=0;i<firstWd;i++) cells.push('<div class="cal-day blank"></div>');
+  for(let d=1; d<=daysInMonth; d++){
+    const k = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dayB = filtered.filter(b=>b.time.slice(0,10)===k);
+    const inc = dayB.filter(b=>b.type==='income').reduce((s,b)=>s+b.amount,0);
+    const out = dayB.filter(b=>b.type==='expense').reduce((s,b)=>s+b.amount,0);
+    cells.push(`<div class="cal-day ${k===todayIso?'today':''} ${k===selDay?'sel':''}" data-d="${k}">
+      <span class="n">${d}</span>
+      ${inc?`<span class="vin">+${shortMoney(inc)}</span>`:''}
+      ${out?`<span class="vout">-${shortMoney(out)}</span>`:''}
+    </div>`);
+  }
+  $('calGrid').innerHTML = cells.join('');
+  $('calGrid').querySelectorAll('.cal-day[data-d]').forEach(el=>el.onclick=()=>{
+    selDay = el.dataset.d; renderCalendar(); showDayBills(selDay);
+  });
+  $('calHint').textContent = `${y}年${m+1}月 · 点日期看当天账单`;
+}
+function showDayBills(day){
+  const list = applyStatFilter(bills).filter(b=>b.time.slice(0,10)===day).sort((a,b)=>b.time.localeCompare(a.time));
+  $('dayBillsWrap').style.display='block';
+  $('dayBillsTitle').textContent = `${dayLabel(day)} · 共 ${list.length} 条`;
+  $('dayBills').innerHTML = list.length ? list.map(billHTML).join('') : '<div class="empty" style="padding:16px">当天没有账单</div>';
+  $('dayBills').querySelectorAll('[data-id]').forEach(el=>el.addEventListener('click',()=>{ if(!batchMode()) openModal(el.dataset.id); }));
+  $('dayBillsWrap').scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+function renderGoals(){
+  const items = channels.map(c=>{
+    if(goals[c]===undefined) return null;
+    const acc = bills.filter(b=>b.redpkt && b.platform===c).reduce((s,b)=>s+b.amount,0);
+    const target = goals[c];
+    const remain = Math.max(0, target - acc);
+    const pct = target>0 ? Math.min(100, acc/target*100) : 0;
+    return `<div class="goal-item">
+      <span class="dot" style="background:${chanColor(c)}"></span>
+      <span class="g-name">${c}</span>
+      <div class="g-bar"><div class="goal-bar"><i style="width:${pct}%"></i></div></div>
+      <div class="g-info">已攒 <b>${fmtMoney(acc)}</b><br>还差 <b>${fmtMoney(remain)}</b> / ${fmtMoney(target)}</div>
+      <button class="goal-del" onclick="delGoal('${c}')">✕</button>
+    </div>`;
+  }).filter(Boolean).join('');
+  $('goalList').innerHTML = items || '<div class="empty" style="padding:16px">还没有设置目标，点下方按钮添加</div>';
+}
+function delGoal(c){ delete goals[c]; saveGoals(); renderGoals(); toast('已删除目标'); }
 function renderPie(list){
   const byCat={};
   list.filter(b=>b.type==='expense').forEach(b=>{ byCat[b.category]=(byCat[b.category]||0)+b.amount; });
@@ -1085,35 +1464,8 @@ function renderPie(list){
     scales:{x:{ticks:{color:muted, font:{size:11}}, grid:{display:false}}, y:{beginAtZero:true, ticks:{color:muted, font:{size:10}, callback:v=>v>=1000?(v/1000)+'k':v}, grid:{color:'rgba(128,128,128,.1)'}}}
   }});
 }
-function renderLine(){
-  const now=new Date(); const days=30; const pts=[];
-  for(let i=days-1;i>=0;i--){
-    const d=new Date(now.getFullYear(),now.getMonth(),now.getDate()-i);
-    const k=iso(d);
-    const dayBills=bills.filter(b=>b.time.slice(0,10)===k);
-    pts.push({
-      label:`${d.getMonth()+1}/${d.getDate()}`,
-      in:dayBills.filter(b=>b.type==='income').reduce((s,b)=>s+b.amount,0),
-      out:dayBills.filter(b=>b.type==='expense').reduce((s,b)=>s+b.amount,0)
-    });
-  }
-  const muted = getComputedStyle(document.body).getPropertyValue('--muted').trim();
-  const ctx=$('lineChart');
-  if(lineChart) lineChart.destroy();
-  lineChart = new Chart(ctx,{type:'line', data:{
-    labels:pts.map(p=>p.label),
-    datasets:[
-      {label:'收入', data:pts.map(p=>p.in), borderColor:'#4ade80', backgroundColor:'rgba(74,222,128,.12)', tension:.35, fill:true, borderWidth:2, pointRadius:0},
-      {label:'支出', data:pts.map(p=>p.out), borderColor:'#fb7185', backgroundColor:'rgba(251,113,133,.12)', tension:.35, fill:true, borderWidth:2, pointRadius:0}
-    ]},
-    options:{maintainAspectRatio:false, interaction:{mode:'index', intersect:false},
-      plugins:{legend:{labels:{color:muted, boxWidth:8, font:{size:11}}}},
-      scales:{x:{ticks:{color:muted, maxTicksLimit:6, font:{size:10}}, grid:{display:false}},
-              y:{ticks:{color:muted, font:{size:10}, callback:v=>v>=1000?(v/1000)+'k':v}, grid:{color:'rgba(128,128,128,.08)'}}}}
-  });
-}
 function showCatBills(cat){
-  const list = bills.filter(b=>b.category===cat).sort((a,b)=>b.time.localeCompare(a.time)).slice(0,30);
+  const list = applyStatFilter(bills).filter(b=>b.category===cat).sort((a,b)=>b.time.localeCompare(a.time)).slice(0,30);
   $('catBillsWrap').style.display='block';
   $('catBillsTitle').textContent = `${CATS[cat]?.ico||''} ${cat} · 共 ${list.length} 条`;
   $('catBills').innerHTML = list.map(billHTML).join('');
@@ -1166,7 +1518,7 @@ function closeWelcome(){ $('welcome').classList.remove('show'); }
 
 /* ============ 初始化 ============ */
 document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ closeModal(); closeConfirm(); closeActions(); } });
-load(); applyTheme(); renderThemes(); renderFilterCats(); renderLedger(); openWelcome();
+load(); applyTheme(); renderThemes(); renderFilterCats(); renderFilterOpts(); renderStatFilter(); renderLedger(); openWelcome();
 </script>
 </body>
 </html>

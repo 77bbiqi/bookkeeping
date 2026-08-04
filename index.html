@@ -1637,6 +1637,13 @@ function closeWelcome(){ $('welcome').classList.remove('show'); }
 /* ============ 初始化 ============ */
 document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ closeModal(); closeConfirm(); closeActions(); } });
 load(); applyTheme(); renderThemes(); renderFilterCats(); renderFilterOpts(); renderStatPicks(); renderLedger(); openWelcome();
+
+/* ============ Service Worker：离线可用 + 可安装 PWA ============ */
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(function(err){
+    console.warn('SW 注册失败（不影响使用）:', err);
+  });
+}
 </script>
 </body>
 </html>
